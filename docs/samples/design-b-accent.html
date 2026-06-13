@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Dijkstra — Design B (accent)</title>
+<style>
+  @page { size: A4; margin: 14mm; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    font-family: -apple-system, "Helvetica Neue", "Hiragino Sans", sans-serif;
+    color: #1a1a2e; margin: 0; font-size: 11px; line-height: 1.5;
+  }
+  .page { max-width: 182mm; margin: 0 auto; }
+
+  .head { margin-bottom: 10px; }
+  .head .kicker { font-size: 9.5px; letter-spacing: 2px; text-transform: uppercase;
+                  color: #6c63ff; font-weight: 700; }
+  .head h1 { font-size: 20px; margin: 1px 0 2px; }
+  .head .meta { display: flex; gap: 8px; align-items: center; font-size: 10px; }
+  .badge { background: #6c63ff; color: #fff; padding: 1px 8px; border-radius: 3px;
+           font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 700; }
+  .head .meta .uc { color: #555; }
+
+  .tagline { background: #f3f2ff; border-left: 3px solid #6c63ff; padding: 6px 9px;
+             font-size: 10.5px; margin: 8px 0 12px; }
+
+  .sect { font-size: 9.5px; letter-spacing: 1.5px; text-transform: uppercase;
+          color: #6c63ff; font-weight: 700; margin: 10px 0 5px; }
+
+  .diagram { border: 1px solid #d8d6f0; border-radius: 5px; padding: 8px 10px;
+             background: #fafaff; }
+  pre { margin: 0; font-family: ui-monospace, Menlo, Consolas, monospace; }
+  .diagram pre { font-size: 10px; line-height: 1.32; color: #2a2a40; }
+
+  /* stacked code, chip on the left */
+  .code { border: 1px solid #e3e2f2; border-radius: 5px; margin-bottom: 7px;
+          overflow: hidden; }
+  .code .bar { display: flex; align-items: center; gap: 6px;
+               padding: 3px 9px; font-size: 9.5px; }
+  .code .chip { font-family: ui-monospace, Menlo, Consolas, monospace; font-weight: 700;
+                color: #fff; padding: 0 7px; border-radius: 3px; font-size: 9.5px; }
+  .kt .bar { background: #f1ecfb; } .kt .chip { background: #7f52ff; }
+  .py .bar { background: #eaf3fb; } .py .chip { background: #2b6cb0; }
+  .jv .bar { background: #fdeee3; } .jv .chip { background: #d97706; }
+  .cp .bar { background: #e9f1f8; } .cp .chip { background: #1b3a6b; }
+  .code .bar .d { color: #666; }
+  .code pre { padding: 6px 10px; font-size: 9.2px; line-height: 1.38; }
+  .cm { color: #8a8aa0; font-style: italic; }
+  .kw { color: #6c63ff; font-weight: 600; }
+  .st { color: #c2410c; }
+
+  .notes { margin-top: 4px; }
+  .notes ul { margin: 0; padding-left: 16px; }
+  .notes li { margin: 2px 0; font-size: 10.5px; }
+  code.k { font-family: ui-monospace, Menlo, Consolas, monospace;
+           background: #f1ecfb; color: #5b3fd6; padding: 0 3px; border-radius: 2px;
+           font-size: 10px; }
+  .foot { margin-top: 8px; font-size: 8.5px; color: #aaa; text-align: right; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="head">
+    <div class="kicker">graph · shortest path</div>
+    <h1>Dijkstra 法</h1>
+    <div class="meta">
+      <span class="badge">O((V+E) log V)</span>
+      <span class="uc">単一始点・非負重みの最短路</span>
+    </div>
+  </div>
+
+  <div class="tagline">
+    辺の重みが <b>非負</b> のグラフで、ある始点から全頂点への最短距離を求める。
+    優先度キューで「未確定のうち最小距離の頂点」を順に確定していく。負辺があるなら使えない。
+  </div>
+
+  <div class="sect">図解 — 距離が確定する順</div>
+  <div class="diagram">
+<pre>(0)──5──▶(1)     start = 0
+ │        ▲      ---------------------------------
+ 2        1      init   dist = [ 0,  ∞,  ∞ ]
+ ▼        │      pop 0  relax 1=5, 2=2
+(2)───────┘             dist = [ 0,  5,  2 ]
+                 pop 2  relax 1 = 2+1 = 3  ( &lt; 5 )
+edges  0▶1 w5           dist = [ 0,  3,  2 ]
+       0▶2 w2    pop 1  settled
+       2▶1 w1    answer  0→1 = 3,  0→2 = 2</pre>
+  </div>
+
+  <div class="sect">実装 — 4 言語</div>
+
+  <div class="code kt">
+    <div class="bar"><span class="chip">Kotlin</span><span class="d">PriorityQueue&lt;Pair&lt;Long,Int&gt;&gt;</span></div>
+<pre><span class="kw">import</span> java.util.PriorityQueue
+
+<span class="kw">fun</span> dijkstra(g: Array&lt;MutableList&lt;Pair&lt;Int,Long&gt;&gt;&gt;, s: Int): LongArray {
+  <span class="kw">val</span> dist = LongArray(g.size) { Long.MAX_VALUE / 4 }; dist[s] = 0
+  <span class="kw">val</span> pq = PriorityQueue&lt;Pair&lt;Long,Int&gt;&gt;(compareBy { it.first })
+  pq.add(0L to s)
+  <span class="kw">while</span> (pq.isNotEmpty()) {
+    <span class="kw">val</span> (d, v) = pq.poll()
+    <span class="kw">if</span> (d &gt; dist[v]) <span class="kw">continue</span>          <span class="cm">// 古い距離は捨てる</span>
+    <span class="kw">for</span> ((to, c) in g[v]) <span class="kw">if</span> (d + c &lt; dist[to]) {
+      dist[to] = d + c; pq.add(dist[to] to to)
+    }
+  }
+  <span class="kw">return</span> dist
+}</pre>
+  </div>
+
+  <div class="code py">
+    <div class="bar"><span class="chip">Python</span><span class="d">heapq</span></div>
+<pre><span class="kw">import</span> heapq
+
+<span class="kw">def</span> dijkstra(g, s):
+    dist = [<span class="kw">float</span>(<span class="st">'inf'</span>)] * len(g); dist[s] = 0
+    pq = [(0, s)]                       <span class="cm"># (dist, vertex)</span>
+    <span class="kw">while</span> pq:
+        d, v = heapq.heappop(pq)
+        <span class="kw">if</span> d &gt; dist[v]: <span class="kw">continue</span>          <span class="cm"># 古い距離は捨てる</span>
+        <span class="kw">for</span> to, c <span class="kw">in</span> g[v]:
+            <span class="kw">if</span> d + c &lt; dist[to]:
+                dist[to] = d + c
+                heapq.heappush(pq, (dist[to], to))
+    <span class="kw">return</span> dist</pre>
+  </div>
+
+  <div class="code jv">
+    <div class="bar"><span class="chip">Java</span><span class="d">List&lt;long[]&gt;[] g</span></div>
+<pre><span class="cm">// g[v] = list of {to, cost}</span>
+<span class="kw">static</span> long[] dijkstra(List&lt;long[]&gt;[] g, int s) {
+  long[] dist = <span class="kw">new</span> long[g.length];
+  Arrays.fill(dist, Long.MAX_VALUE / 4); dist[s] = 0;
+  PriorityQueue&lt;long[]&gt; pq = <span class="kw">new</span> PriorityQueue&lt;&gt;((a,b)-&gt;Long.compare(a[0],b[0]));
+  pq.add(<span class="kw">new</span> long[]{0, s});
+  <span class="kw">while</span> (!pq.isEmpty()) {
+    long[] t = pq.poll(); long d = t[0]; int v = (int) t[1];
+    <span class="kw">if</span> (d &gt; dist[v]) <span class="kw">continue</span>;
+    <span class="kw">for</span> (long[] e : g[v]) {                <span class="cm">// e = {to, cost}</span>
+      int to = (int) e[0]; long c = e[1];
+      <span class="kw">if</span> (d + c &lt; dist[to]) { dist[to] = d + c; pq.add(<span class="kw">new</span> long[]{dist[to], to}); }
+    }
+  }
+  <span class="kw">return</span> dist;
+}</pre>
+  </div>
+
+  <div class="code cp">
+    <div class="bar"><span class="chip">C++</span><span class="d">priority_queue&lt;...&gt; greater</span></div>
+<pre><span class="kw">using</span> ll = <span class="kw">long long</span>;   <span class="cm">// g[v] = vector of {to, cost}</span>
+vector&lt;ll&gt; dijkstra(vector&lt;vector&lt;pair&lt;int,ll&gt;&gt;&gt;&amp; g, int s) {
+  vector&lt;ll&gt; dist(g.size(), 4e18); dist[s] = 0;
+  priority_queue&lt;pair&lt;ll,int&gt;, vector&lt;pair&lt;ll,int&gt;&gt;, greater&lt;&gt;&gt; pq;
+  pq.push({0, s});
+  <span class="kw">while</span> (!pq.empty()) {
+    <span class="kw">auto</span> [d, v] = pq.top(); pq.pop();
+    <span class="kw">if</span> (d &gt; dist[v]) <span class="kw">continue</span>;
+    <span class="kw">for</span> (<span class="kw">auto</span> [to, c] : g[v])
+      <span class="kw">if</span> (d + c &lt; dist[to]) { dist[to] = d + c; pq.push({dist[to], to}); }
+  }
+  <span class="kw">return</span> dist;
+}</pre>
+  </div>
+
+  <div class="sect">罠 / pitfalls</div>
+  <div class="notes">
+    <ul>
+      <li>同じ頂点が複数回 push される → <code class="k">if (d &gt; dist[v]) continue</code> で古いものを捨てる（無いと TLE）</li>
+      <li>負の辺があると正しく動かない → Bellman-Ford（負閉路も検出可）</li>
+      <li>INF は加算で溢れない値に。C++ <code class="k">4e18</code>、他は <code class="k">LONG_MAX/4</code></li>
+      <li>経路復元は <code class="k">prev[to]=v</code> を更新し、終点から逆順にたどる</li>
+    </ul>
+  </div>
+
+  <div class="foot">kyoupro-lib · design B (accent / stacked) · A4</div>
+</div>
+</body>
+</html>

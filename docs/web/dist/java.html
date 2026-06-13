@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>競プロ早見 — Java (category)</title>
+<style>
+@page { size: A4; margin: 9mm; }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { font-family:"Hiragino Sans","Noto Sans JP",-apple-system,sans-serif;
+       color:#000; margin:0; font-size:9px; line-height:1.35; }
+.mast { display:flex; align-items:baseline; gap:10px; padding-bottom:4px; margin-bottom:7px; }
+.mast h1 { font-size:16px; margin:0; }
+.mast .lang { font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospace; font-weight:700; font-size:11px; padding:1px 8px; }
+.mast .note { margin-left:auto; font-size:8px; color:#666; text-align:right; line-height:1.3; }
+.legend { font-size:8px; color:#555; margin:-3px 0 7px; }
+.cols { columns:2; column-gap:6mm; }
+.block { break-inside:avoid; margin-bottom:7px; padding-bottom:5px; }
+.bh { display:flex; align-items:baseline; gap:5px; flex-wrap:wrap; }
+.bh .cat { font-size:7px; letter-spacing:0.5px; padding:0 4px; border-radius:2px; }
+.bh .title { font-size:11px; font-weight:700; }
+.bh .sub { font-size:8px; color:#555; }
+.bh .cx { margin-left:auto; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospace; font-weight:700; font-size:8.5px;
+          padding:0 4px; white-space:nowrap; }
+.lead { font-size:8.6px; margin:3px 0 4px; }
+pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospace; }
+.dia { font-size:8.4px; line-height:1.28; padding:3px 6px; margin-bottom:4px;
+       white-space:pre; overflow:hidden; }
+.code { font-size:8px; line-height:1.32; padding:2px 0 2px 6px; white-space:pre; overflow:hidden; }
+.code .cm { color:#999; }
+.pf { margin:4px 0 0; padding-left:13px; }
+.pf li { font-size:8.2px; margin:1px 0; }
+@media screen {
+  body { background:#999; padding:14px; }
+  .sheet { background:#fff; max-width:200mm; margin:0 auto; padding:9mm;
+           box-shadow:0 1px 6px rgba(0,0,0,.4); }
+}
+
+.cols { column-rule:0.5px solid #ddd; }
+.block { border-bottom:0.5px solid #eee; }
+.mast { border-bottom:2px solid #111; }
+.mast .lang { background:#111; color:#fff; }
+.bh .cx { border:1px solid #888; }
+.dia { background:#fafafa; border-left:2px solid #ccc; }
+.code { border-left:2px solid #ccc; }
+.cat-ds .bh .cat{background:#ede9fe;color:#6d28d9} .cat-ds .code{border-left-color:#7c3aed}
+.cat-graph .bh .cat{background:#dbeafe;color:#1d4ed8} .cat-graph .code{border-left-color:#2563eb}
+.cat-math .bh .cat{background:#d1fae5;color:#047857} .cat-math .code{border-left-color:#059669}
+.cat-search .bh .cat{background:#ffedd5;color:#c2410c} .cat-search .code{border-left-color:#ea580c}
+.cat-util .bh .cat{background:#cffafe;color:#0e7490} .cat-util .code{border-left-color:#0891b2}
+.cat-dp .bh .cat{background:#fce7f3;color:#be185d} .cat-dp .code{border-left-color:#db2777}
+.cat-string .bh .cat{background:#e0e7ff;color:#4338ca} .cat-string .code{border-left-color:#4f46e5}
+.cat-geometry .bh .cat{background:#fee2e2;color:#b91c1c} .cat-geometry .code{border-left-color:#dc2626}
+.cat-io .bh .cat{background:#ccfbf1;color:#0f766e} .cat-io .code{border-left-color:#14b8a6}</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="mast">
+    <h1>競プロ早見表</h1>
+    <span class="lang">Java</span>
+    <span class="note">kyoupro-lib · 25 topics · theme:category<br>print: A4 縦 / 2 段組</span>
+  </div>
+  <div class="legend">使う場面 → 図解 → コード → 罠 の順。<span class="cm">// 灰色はコメント</span>。計算量は右上。</div>
+  <div class="cols">
+<section class="block cat-ds">
+  <div class="bh">
+    <span class="cat">データ構造</span>
+    <span class="title">Union-Find</span>
+    <span class="sub">素集合・連結判定</span>
+    <span class="cx">ほぼ O(α(N))</span>
+  </div>
+  <p class="lead">経路圧縮 + size 併合。連結判定 / グループ分け / Kruskal。union は併合したら true。</p>
+  <pre class="dia">init   0  1  2  3  4   (各自が根)
+u(0,1) 0──1  2  3  4
+u(2,3) 0──1  2──3  4
+u(1,2) 0──1──2──3  4   same(0,3)=T size=4
+find: 根まで辿り親を直付け(経路圧縮)</pre>
+  <pre class="code">class UnionFind {
+  int[] par, sz;
+  UnionFind(int n) {
+    par = new int[n]; sz = new int[n];
+    for (int i = 0; i &lt; n; i++) { par[i] = i; sz[i] = 1; }
+  }
+  int find(int x) { return par[x] == x ? x : (par[x] = find(par[x])); }
+  boolean union(int a, int b) {
+    int ra = find(a), rb = find(b);
+    if (ra == rb) return false;
+    if (sz[ra] &lt; sz[rb]) { int t = ra; ra = rb; rb = t; }
+    par[rb] = ra; sz[ra] += sz[rb]; return true;
+  }
+  boolean same(int a, int b) { return find(a) == find(b); }
+  int size(int x) { return sz[find(x)]; }
+}</pre>
+  <ul class="pf"><li>size(小)を size(大)に繋ぐ(union by size)で木を低く保つ</li><li>辺の削除はできない(追加のみ)。削除込みは別手法</li></ul>
+</section>
+<section class="block cat-ds">
+  <div class="bh">
+    <span class="cat">データ構造</span>
+    <span class="title">BIT (Fenwick)</span>
+    <span class="sub">点加算 + 区間和 / 転倒数</span>
+    <span class="cx">O(log N)</span>
+  </div>
+  <p class="lead">点加算・前方和を O(log N)。転倒数は「右より小さい既出要素の総数」で求まる。</p>
+  <pre class="dia">idx は (i &amp; -i) 幅を管理
+add(i,v): x += x &amp; -x で上る
+sum(i):   x -= x &amp; -x で下り a[0..i] の和
+区間 [l,r] = sum(r) - sum(l-1)
+転倒数: 後ろから add しつつ sum(a[i]-1)</pre>
+  <pre class="code">class BIT {
+  int n; long[] t;
+  BIT(int n) { this.n = n; t = new long[n + 1]; }
+  void add(int i, long v) { for (int x = i + 1; x &lt;= n; x += x &amp; -x) t[x] += v; }
+  long sum(int i) {                   <span class="cm">// a[0..i]</span>
+    long s = 0;
+    for (int x = i + 1; x &gt; 0; x -= x &amp; -x) s += t[x];
+    return s;
+  }
+}
+static long inversions(int[] a) {
+  int mx = 0; for (int x : a) mx = Math.max(mx, x);
+  BIT bit = new BIT(mx + 1); long res = 0;
+  for (int i = a.length - 1; i &gt;= 0; i--) {
+    if (a[i] &gt; 0) res += bit.sum(a[i] - 1);
+    bit.add(a[i], 1);
+  }
+  return res;
+}</pre>
+  <ul class="pf"><li>1-indexed で持つ(内部 x=i+1)。0 を add する値域に注意</li><li>区間和は IntArray.sum() でなく Long で(溢れ)</li></ul>
+</section>
+<section class="block cat-graph">
+  <div class="bh">
+    <span class="cat">グラフ</span>
+    <span class="title">Dijkstra 法</span>
+    <span class="sub">単一始点・非負重み最短路</span>
+    <span class="cx">O((V+E) log V)</span>
+  </div>
+  <p class="lead">優先度キューで未確定のうち最小距離の頂点を順に確定。負辺があると使えない(→Bellman-Ford)。</p>
+  <pre class="dia">(0)──5──▶(1)   start = 0
+ │        ▲    init  dist=[0, ∞, ∞]
+ 2        1    pop0  1=5 2=2 →[0,5,2]
+ ▼        │    pop2  1=2+1=3 →[0,3,2]
+(2)───────┘    pop1  settled
+0▶1:5 0▶2:2 2▶1:1      ans [0,3,2]</pre>
+  <pre class="code"><span class="cm">// g[v] = list of {to, cost}</span>
+static long[] dijkstra(List&lt;long[]&gt;[] g, int s) {
+  long[] dist = new long[g.length];
+  Arrays.fill(dist, Long.MAX_VALUE / 4); dist[s] = 0;
+  PriorityQueue&lt;long[]&gt; pq =
+    new PriorityQueue&lt;&gt;((a, b) -&gt; Long.compare(a[0], b[0]));
+  pq.add(new long[]{0, s});
+  while (!pq.isEmpty()) {
+    long[] t = pq.poll(); long d = t[0]; int v = (int) t[1];
+    if (d &gt; dist[v]) continue;          <span class="cm">// 古い距離は捨てる</span>
+    for (long[] e : g[v]) {
+      int to = (int) e[0]; long c = e[1];
+      if (d + c &lt; dist[to]) { dist[to] = d + c; pq.add(new long[]{dist[to], to}); }
+    }
+  }
+  return dist;
+}</pre>
+  <ul class="pf"><li>if (d &gt; dist[v]) continue を必ず入れる(古い距離を捨てる、無いと TLE)</li><li>INF は加算で溢れない値に。C++ 4e18 / 他 LONG_MAX/4</li><li>経路復元は prev[to]=v を更新し終点から逆順</li></ul>
+</section>
+<section class="block cat-graph">
+  <div class="bh">
+    <span class="cat">グラフ</span>
+    <span class="title">グリッド BFS</span>
+    <span class="sub">迷路・最少手数</span>
+    <span class="cx">O(HW)</span>
+  </div>
+  <p class="lead">4 近傍を距離 +1 で push。壁 # と訪問済みは skip。最短手数 = 到達時の dist。</p>
+  <pre class="dia">grid (#=壁)        dist from S
+S . . #            0 1 2 #
+. # . .            1 # 3 4
+. . . G            2 3 4 5
+4近傍↑↓←→を BFS → G = 5</pre>
+  <pre class="code">static int[][] gridBfs(char[][] grid, int sy, int sx) {
+  int h = grid.length, w = grid[0].length;
+  int[][] dist = new int[h][w];
+  for (int[] row : dist) Arrays.fill(row, -1);
+  int[] dy = {-1, 1, 0, 0}, dx = {0, 0, -1, 1};
+  dist[sy][sx] = 0;
+  ArrayDeque&lt;int[]&gt; q = new ArrayDeque&lt;&gt;();
+  q.add(new int[]{sy, sx});
+  while (!q.isEmpty()) {
+    int[] c = q.poll(); int y = c[0], x = c[1];
+    for (int d = 0; d &lt; 4; d++) {
+      int ny = y + dy[d], nx = x + dx[d];
+      if (ny &lt; 0 || ny &gt;= h || nx &lt; 0 || nx &gt;= w) continue;
+      if (grid[ny][nx] == '#' || dist[ny][nx] != -1) continue;
+      dist[ny][nx] = dist[y][x] + 1;
+      q.add(new int[]{ny, nx});
+    }
+  }
+  return dist;
+}</pre>
+  <ul class="pf"><li>到達不可は -1 のまま</li><li>8 近傍や重み付きは別 (重みは 0-1 BFS / Dijkstra)</li></ul>
+</section>
+<section class="block cat-search">
+  <div class="bh">
+    <span class="cat">探索</span>
+    <span class="title">二分探索</span>
+    <span class="sub">めぐる式 / lower・upper bound</span>
+    <span class="cx">O(log N)</span>
+  </div>
+  <p class="lead">答えの単調性(F..FT..T)で二分。ok=満たす側, ng=満たさない側の初期値を渡す。</p>
+  <pre class="dia">pred 単調:  F F F T T T
+            ng ──┬── ok   m=(ok+ng)/2
+lowerBound: a[i] &gt;= x の最小 i
+upperBound: a[i] &gt;  x の最小 i
+[1 3 3 5 7] x=3 → lower=1 upper=3 個数=2</pre>
+  <pre class="code"><span class="cm">// pred(ok)=true, pred(ng)=false となる初期値を渡す</span>
+static long bisect(long ok, long ng, java.util.function.LongPredicate pred) {
+  while (Math.abs(ok - ng) &gt; 1) {
+    long m = ok + (ng - ok) / 2;      <span class="cm">// 溢れ対策</span>
+    if (pred.test(m)) ok = m; else ng = m;
+  }
+  return ok;
+}
+static int lowerBound(long[] a, long x) {   <span class="cm">// a[i] &gt;= x の最小 i</span>
+  int lo = -1, hi = a.length;
+  while (hi - lo &gt; 1) { int m = (lo + hi) &gt;&gt;&gt; 1; if (a[m] &gt;= x) hi = m; else lo = m; }
+  return hi;
+}
+static int upperBound(long[] a, long x) {   <span class="cm">// a[i] &gt; x の最小 i</span>
+  int lo = -1, hi = a.length;
+  while (hi - lo &gt; 1) { int m = (lo + hi) &gt;&gt;&gt; 1; if (a[m] &gt; x) hi = m; else lo = m; }
+  return hi;
+}</pre>
+  <ul class="pf"><li>ok/ng の向きを取り違えない(満たす側が ok)</li><li>mid の溢れ: (lo+hi)/2 より lo+(hi-lo)/2 が安全</li><li>値が無い場合の lowerBound は size を返す</li></ul>
+</section>
+<section class="block cat-util">
+  <div class="bh">
+    <span class="cat">ユーティリティ</span>
+    <span class="title">累積和 / いもす法</span>
+    <span class="sub">区間和 O(1) / 区間加算</span>
+    <span class="cx">前計算 O(N), クエリ O(1)</span>
+  </div>
+  <p class="lead">累積和で区間和を O(1)。逆操作のいもす法は「区間加算を大量 → 最後に復元」。</p>
+  <pre class="dia">a   = [1 2 3 4 5]
+sum = [0 1 3 6 10 15]   (1個ずれ)
+区間 [l,r) = sum[r] - sum[l]   [1,4)=9
+いもす: add(l,r,v)= diff[l]+=v; diff[r]-=v
+        最後に累積和で復元</pre>
+  <pre class="code">static long[] prefixSum(long[] a) {          <span class="cm">// s[i]=a[0..i-1]; [l,r)=s[r]-s[l]</span>
+  long[] s = new long[a.length + 1];
+  for (int i = 0; i &lt; a.length; i++) s[i + 1] = s[i] + a[i];
+  return s;
+}
+class Imos {
+  long[] diff;
+  Imos(int n) { diff = new long[n + 1]; }
+  void add(int l, int r, long v) { diff[l] += v; diff[r] -= v; }   <span class="cm">// a[l..r-1]+=v</span>
+  long[] build() {
+    long[] res = new long[diff.length - 1]; long acc = 0;
+    for (int i = 0; i &lt; res.length; i++) { acc += diff[i]; res[i] = acc; }
+    return res;
+  }
+}</pre>
+  <ul class="pf"><li>sum は長さ N+1。区間は半開 [l, r) で扱うと添字ミスが減る</li><li>いもす法は右端 r を「含まない」位置に -v</li></ul>
+</section>
+<section class="block cat-math">
+  <div class="bh">
+    <span class="cat">数学</span>
+    <span class="title">mod 演算 / nCr</span>
+    <span class="sub">modpow・modinv・組合せ</span>
+    <span class="cx">O(log N) / 前計算 O(N)</span>
+  </div>
+  <p class="lead">modpow は繰返し二乗法。modinv はフェルマー(m素数で a^(m-2))。nCr は階乗逆元の前計算。</p>
+  <pre class="dia">modpow(a,e): e を 2 進で繰返し二乗
+  a^13 = a^8 · a^4 · a^1   (13 = 1101)
+modinv(a) = a^(m-2) mod m   (m 素数)
+nCr = fact[n]·inv[r]·inv[n-r]   前計算 O(n)</pre>
+  <pre class="code">static final long MOD = 998244353L;     <span class="cm">// or 1_000_000_007L</span>
+static long modpow(long a, long e, long m) {
+  long b = a % m, r = 1;
+  while (e &gt; 0) { if ((e &amp; 1) == 1) r = r * b % m; b = b * b % m; e &gt;&gt;= 1; }
+  return r;
+}
+static long modinv(long a, long m) { return modpow(a, m - 2, m); }   <span class="cm">// m は素数</span>
+class Comb {
+  long m; long[] fact, inv;
+  Comb(int maxN, long m) {
+    this.m = m; fact = new long[maxN + 1]; inv = new long[maxN + 1];
+    fact[0] = 1;
+    for (int i = 1; i &lt;= maxN; i++) fact[i] = fact[i - 1] * i % m;
+    inv[maxN] = modpow(fact[maxN], m - 2, m);
+    for (int i = maxN; i &gt;= 1; i--) inv[i - 1] = inv[i] * i % m;
+  }
+  long nCr(int n, int r) {
+    if (r &lt; 0 || r &gt; n) return 0;
+    return fact[n] * inv[r] % m * inv[n - r] % m;
+  }
+}</pre>
+  <ul class="pf"><li>MOD は問題指定 (998244353 か 1e9+7) を必ず確認</li><li>掛け算ごとに % を取る(2 回掛けたら溢れる手前で)</li><li>Python は組み込み pow(a,e,m) が最速</li></ul>
+</section>
+<section class="block cat-math">
+  <div class="bh">
+    <span class="cat">数学</span>
+    <span class="title">エラトステネスの篩</span>
+    <span class="sub">素数列挙</span>
+    <span class="cx">O(N log log N)</span>
+  </div>
+  <p class="lead">isPrime[i] を一括計算。i*i から消すのがポイント。約数/素因数のクエリが多いなら最小素因数表へ。</p>
+  <pre class="dia">2 3 4 5 6 7 8 9 10 ...
+2の倍数除外 → 3の → 5の → ...
+消す開始は i*i (それ未満は既出)
+残り = 素数  例) ~20: 2 3 5 7 11 13 17 19</pre>
+  <pre class="code">static boolean[] sieve(int n) {        <span class="cm">// isPrime[i]</span>
+  boolean[] p = new boolean[n + 1];
+  Arrays.fill(p, 2, n + 1, true);
+  for (int i = 2; (long) i * i &lt;= n; i++)
+    if (p[i]) for (int j = i * i; j &lt;= n; j += i) p[j] = false;
+  return p;
+}</pre>
+  <ul class="pf"><li>i*i がオーバーフローするなら long で比較</li><li>0,1 は素数でない(初期化で false)</li></ul>
+</section>
+<section class="block cat-math">
+  <div class="bh">
+    <span class="cat">数学</span>
+    <span class="title">gcd / lcm / extGcd</span>
+    <span class="sub">ユークリッドの互除法</span>
+    <span class="cx">O(log N)</span>
+  </div>
+  <p class="lead">gcd は互除法。lcm は先に割って溢れ防止。extGcd は ax+by=gcd の (x,y) も求める(mod 逆元・不定方程式)。</p>
+  <pre class="dia">gcd(a,b) = gcd(b, a%b),  gcd(a,0)=a
+ gcd(12,18)=gcd(18,12)=gcd(12,6)=gcd(6,0)=6
+lcm = a / gcd · b    (先に割る)
+extGcd: ax + by = gcd の x,y も返す</pre>
+  <pre class="code">static long gcd(long a, long b) { return b == 0 ? a : gcd(b, a % b); }
+static long lcm(long a, long b) { return a / gcd(a, b) * b; }
+<span class="cm">// ax + by = gcd; 返り値 {g, x, y}</span>
+static long[] extGcd(long a, long b) {
+  if (b == 0) return new long[]{a, 1, 0};
+  long[] r = extGcd(b, a % b);
+  return new long[]{r[0], r[2], r[1] - (a / b) * r[2]};
+}</pre>
+  <ul class="pf"><li>lcm は a*b が溢れる → a/gcd*b の順</li><li>負数の gcd 符号に注意(必要なら abs)</li></ul>
+</section>
+<section class="block cat-dp">
+  <div class="bh">
+    <span class="cat">動的計画法</span>
+    <span class="title">ナップサック / 部分和</span>
+    <span class="sub">0-1 / 個数制限 DP</span>
+    <span class="cx">O(NW)</span>
+  </div>
+  <p class="lead">容量ごとの最大価値。0-1 は重さを逆順ループ(各品物1回)。部分和は価値の代わりに可否を持つ。</p>
+  <pre class="dia">品物(w,v), 容量cap. dp[w]=容量wの最大価値
+for 品物: for w = cap .. wi  (逆順!):
+   dp[w] = max(dp[w], dp[w-wi] + vi)
+逆順=各品物1回。正順だと無制限個
+部分和: dp[s] = s を作れるか (bool)</pre>
+  <pre class="code"><span class="cm">// 0-1: 各品物 1 個まで</span>
+static long knapsack01(int[] w, long[] v, int cap) {
+  long[] dp = new long[cap + 1];
+  for (int i = 0; i &lt; w.length; i++)
+    for (int j = cap; j &gt;= w[i]; j--)      <span class="cm">// 重さ逆順</span>
+      dp[j] = Math.max(dp[j], dp[j - w[i]] + v[i]);
+  return dp[cap];
+}
+static boolean subsetSum(int[] a, int target) {
+  boolean[] dp = new boolean[target + 1]; dp[0] = true;
+  for (int x : a) for (int s = target; s &gt;= x; s--) if (dp[s - x]) dp[s] = true;
+  return dp[target];
+}</pre>
+  <ul class="pf"><li>0-1 は必ず容量を逆順。正順にすると無制限ナップサックになる</li><li>価値は溢れうる → Long で持つ</li></ul>
+</section>
+<section class="block cat-ds">
+  <div class="bh">
+    <span class="cat">データ構造</span>
+    <span class="title">セグメント木</span>
+    <span class="sub">点更新 + 区間クエリ</span>
+    <span class="cx">O(log N)</span>
+  </div>
+  <p class="lead">非再帰・抽象化。op はモノイド(結合的 + 単位元 unit)。min/max/和などを区間で。</p>
+  <pre class="dia">[5 3 7 1 9] を min セグ木に
+         [1]            ← 全体 min
+      [3]    [9]
+   [3][7] [9][∞]
+ [5][3][7][1][9]
+update(i,v): 葉→根  query[l,r): 両端から畳む</pre>
+  <pre class="code"><span class="cm">// op はモノイド(結合的 + 単位元 unit). 例: min/max/和</span>
+class SegTree&lt;T&gt; {
+  int size = 1; T unit; java.util.function.BinaryOperator&lt;T&gt; op; Object[] t;
+  SegTree(int n, T unit, java.util.function.BinaryOperator&lt;T&gt; op) {
+    this.unit = unit; this.op = op;
+    while (size &lt; n) size *= 2;
+    t = new Object[2 * size]; Arrays.fill(t, unit);
+  }
+  @SuppressWarnings("unchecked")
+  T at(int i) { return (T) t[i]; }
+  void update(int i, T v) {
+    int x = i + size; t[x] = v;
+    for (x &gt;&gt;= 1; x &gt;= 1; x &gt;&gt;= 1) t[x] = op.apply(at(2 * x), at(2 * x + 1));
+  }
+  T query(int l, int r) {               <span class="cm">// [l, r)</span>
+    T res = unit; int lo = l + size, hi = r + size;
+    while (lo &lt; hi) {
+      if ((lo &amp; 1) == 1) res = op.apply(res, at(lo++));
+      if ((hi &amp; 1) == 1) res = op.apply(res, at(--hi));
+      lo &gt;&gt;= 1; hi &gt;&gt;= 1;
+    }
+    return res;
+  }
+}</pre>
+  <ul class="pf"><li>query は半開 [l, r)</li><li>unit は演算の単位元 (min→∞, max→-∞, 和→0)</li><li>区間更新が要るなら遅延セグ木に拡張</li></ul>
+</section>
+<section class="block cat-ds">
+  <div class="bh">
+    <span class="cat">データ構造</span>
+    <span class="title">座標圧縮</span>
+    <span class="sub">大きい値 → 0..k-1</span>
+    <span class="cx">O(N log N)</span>
+  </div>
+  <p class="lead">値の大小を保ったまま 0..k-1 に詰める。BIT/セグ木に乗せる前処理、値の種類数。</p>
+  <pre class="dia">a    = [100  50 100   7]
+sort &amp; distinct = [7 50 100]  (→ 0 1 2)
+comp = [  2   1   2   0]
+逆引き: 圧縮値 i → vals[i] が元の値</pre>
+  <pre class="code"><span class="cm">// 値の大小を保ち 0..k-1 に圧縮。圧縮後配列を返す(元の値は sorted distinct)</span>
+static int[] compress(long[] a) {
+  long[] vals = Arrays.stream(a).distinct().sorted().toArray();
+  HashMap&lt;Long, Integer&gt; idx = new HashMap&lt;&gt;();
+  for (int i = 0; i &lt; vals.length; i++) idx.put(vals[i], i);
+  int[] res = new int[a.length];
+  for (int i = 0; i &lt; a.length; i++) res[i] = idx.get(a[i]);
+  return res;
+}</pre>
+  <ul class="pf"><li>重複は 1 つにまとめる(distinct)</li><li>半開区間や境界を扱うなら +1 した値も入れることがある</li></ul>
+</section>
+<section class="block cat-graph">
+  <div class="bh">
+    <span class="cat">グラフ</span>
+    <span class="title">Bellman-Ford 法</span>
+    <span class="sub">負辺ありの最短路</span>
+    <span class="cx">O(VE)</span>
+  </div>
+  <p class="lead">全辺を n-1 回緩和。負辺 OK。n 回目でも更新できれば負閉路。Dijkstra が使えない時に。</p>
+  <pre class="dia">全辺を n-1 回 緩和(relax)
+ dist[t] = min(dist[t], dist[f] + cost)
+n 回目でも更新 → 負閉路あり
+始点から到達する負閉路だけが検出対象</pre>
+  <pre class="code"><span class="cm">// edges: each {from, to, cost}. 負閉路があれば null</span>
+static long[] bellmanFord(int n, long[][] edges, int s) {
+  long INF = Long.MAX_VALUE / 4;
+  long[] dist = new long[n]; Arrays.fill(dist, INF); dist[s] = 0;
+  for (int it = 0; it &lt; n - 1; it++)
+    for (long[] e : edges) {
+      int f = (int) e[0], t = (int) e[1];
+      if (dist[f] != INF &amp;&amp; dist[f] + e[2] &lt; dist[t]) dist[t] = dist[f] + e[2];
+    }
+  for (long[] e : edges) {                  <span class="cm">// 負閉路</span>
+    int f = (int) e[0], t = (int) e[1];
+    if (dist[f] != INF &amp;&amp; dist[f] + e[2] &lt; dist[t]) return null;
+  }
+  return dist;
+}</pre>
+  <ul class="pf"><li>dist[f] が INF の辺は緩和しない(INF + cost で誤更新)</li><li>負閉路検出は n-1 回緩和の「後」にもう 1 周</li></ul>
+</section>
+<section class="block cat-graph">
+  <div class="bh">
+    <span class="cat">グラフ</span>
+    <span class="title">Warshall-Floyd 法</span>
+    <span class="sub">全点対最短路</span>
+    <span class="cx">O(V³)</span>
+  </div>
+  <p class="lead">中継点 k を全部試す DP。V≤500 まで。負辺 OK(負閉路は dist[v][v]&lt;0 で検出)。</p>
+  <pre class="dia">中継点 k = 0..n-1 を全部試す
+ dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])
+隣接行列(辺なし=INF, 対角0)を渡し in-place 更新
+ループ順は k, i, j の順 (k が最外)</pre>
+  <pre class="code"><span class="cm">// 全点対最短路。dist は隣接行列(辺なし=INF, 対角0) を in-place 更新</span>
+static void warshallFloyd(long[][] dist) {
+  long INF = Long.MAX_VALUE / 4; int n = dist.length;
+  for (int k = 0; k &lt; n; k++)
+    for (int i = 0; i &lt; n; i++) {
+      if (dist[i][k] == INF) continue;
+      for (int j = 0; j &lt; n; j++)
+        if (dist[k][j] != INF &amp;&amp; dist[i][k] + dist[k][j] &lt; dist[i][j])
+          dist[i][j] = dist[i][k] + dist[k][j];
+    }
+}</pre>
+  <ul class="pf"><li>ループ順は必ず k を最外に</li><li>INF 経由の誤更新を防ぐ(INF の行は skip)</li></ul>
+</section>
+<section class="block cat-graph">
+  <div class="bh">
+    <span class="cat">グラフ</span>
+    <span class="title">トポロジカルソート</span>
+    <span class="sub">DAG の順序付け (Kahn)</span>
+    <span class="cx">O(V+E)</span>
+  </div>
+  <p class="lead">入次数 0 をキューから取り出し、辺を消しながら並べる。全頂点出せなければ閉路。</p>
+  <pre class="dia">入次数0をキューへ → 取り出しつつ出る辺を消す
+ (消した先の入次数が0になったら追加)
+全頂点出れば順序確定 / 出きらねば閉路
+辞書順最小が要るなら queue → 優先度付き</pre>
+  <pre class="code"><span class="cm">// Kahn 法。g: 隣接リスト(有向). 閉路があれば null</span>
+static List&lt;Integer&gt; topoSort(List&lt;Integer&gt;[] g) {
+  int n = g.length; int[] indeg = new int[n];
+  for (int v = 0; v &lt; n; v++) for (int to : g[v]) indeg[to]++;
+  ArrayDeque&lt;Integer&gt; q = new ArrayDeque&lt;&gt;();
+  for (int v = 0; v &lt; n; v++) if (indeg[v] == 0) q.add(v);
+  List&lt;Integer&gt; order = new ArrayList&lt;&gt;();
+  while (!q.isEmpty()) {
+    int v = q.poll(); order.add(v);
+    for (int to : g[v]) if (--indeg[to] == 0) q.add(to);
+  }
+  return order.size() == n ? order : null;
+}</pre>
+  <ul class="pf"><li>出力数 &lt; N なら閉路あり</li><li>辞書順最小は ArrayDeque を PriorityQueue に</li></ul>
+</section>
+<section class="block cat-graph">
+  <div class="bh">
+    <span class="cat">グラフ</span>
+    <span class="title">Kruskal 法 (MST)</span>
+    <span class="sub">最小全域木</span>
+    <span class="cx">O(E log E)</span>
+  </div>
+  <p class="lead">辺を cost 昇順に見て、端点が別グループなら採用(Union-Find)。全部つなぐ最小コスト。</p>
+  <pre class="dia">辺を cost 昇順にソート
+ 端点が別グループなら採用(UnionFind で併合)
+ 採用辺が n-1 本で全域木 完成
+※ Union-Find のスニペットが必要</pre>
+  <pre class="code"><span class="cm">// edges: each {cost, u, v}. UnionFind 必要。非連結なら -1</span>
+static long kruskal(int n, long[][] edges) {
+  Arrays.sort(edges, (a, b) -&gt; Long.compare(a[0], b[0]));
+  UnionFind uf = new UnionFind(n); long total = 0; int used = 0;
+  for (long[] e : edges)
+    if (uf.union((int) e[1], (int) e[2])) { total += e[0]; used++; }
+  return used == n - 1 ? total : -1;
+}</pre>
+  <ul class="pf"><li>採用辺が n-1 本に満たなければ非連結</li><li>同コスト辺の順序は MST 重みに影響しない</li></ul>
+</section>
+<section class="block cat-util">
+  <div class="bh">
+    <span class="cat">ユーティリティ</span>
+    <span class="title">しゃくとり法</span>
+    <span class="sub">連続区間の最長/数え上げ</span>
+    <span class="cx">O(N)</span>
+  </div>
+  <p class="lead">窓 [left,right] を右に伸ばし、条件を破ったら左を詰める。単調性が前提(非負配列など)。</p>
+  <pre class="dia">[left,right] 窓を右へ伸ばし、破ったら左を詰める
+ 和&lt;=k 最大長: 超えたら left++ で縮める
+ 和&gt;=k 個数: 初めて満たせば右端以降は全部OK
+単調性(伸ばすと悪化/縮めると改善)が必要</pre>
+  <pre class="code"><span class="cm">// 和が k 以下の連続区間の最大長 (a は非負)</span>
+static int longestAtMost(long[] a, long k) {
+  int best = 0, left = 0; long sum = 0;
+  for (int right = 0; right &lt; a.length; right++) {
+    sum += a[right];
+    while (sum &gt; k) { sum -= a[left]; left++; }
+    best = Math.max(best, right - left + 1);
+  }
+  return best;
+}
+<span class="cm">// 和が k 以上の連続区間の総数 (a は非負)</span>
+static long countAtLeast(long[] a, long k) {
+  int n = a.length, right = 0; long count = 0, sum = 0;
+  for (int left = 0; left &lt; n; left++) {
+    while (right &lt; n &amp;&amp; sum &lt; k) { sum += a[right]; right++; }
+    if (sum &lt; k) break;
+    count += n - right + 1;
+    sum -= a[left];
+  }
+  return count;
+}</pre>
+  <ul class="pf"><li>負数があると単調性が崩れ使えない</li><li>right を左に戻さない(各ポインタは単調に進むだけ)</li></ul>
+</section>
+<section class="block cat-search">
+  <div class="bh">
+    <span class="cat">探索</span>
+    <span class="title">bit 全探索 / 順列</span>
+    <span class="sub">全列挙</span>
+    <span class="cx">O(2ⁿn) / O(n!·n)</span>
+  </div>
+  <p class="lead">bit 全探索で選ぶ/選ばない 2ⁿ 通り(n≤20)。next permutation で全順列(n≤10)。</p>
+  <pre class="dia">bit全探索: mask 0..2^n-1, i bit目で i 番目採用
+ for mask: for i: if (mask&gt;&gt;i &amp; 1) use i
+順列: 末尾から増加位置を探し交換→反転
+ 012 021 102 120 201 210  (n! 通り)</pre>
+  <pre class="code"><span class="cm">// bit 全探索: for (int mask = 0; mask &lt; (1&lt;&lt;n); mask++) { (mask&gt;&gt;i &amp; 1) ... }</span>
+<span class="cm">// 辞書順で次の順列に in-place。なければ false</span>
+static boolean nextPermutation(int[] a) {
+  int i = a.length - 2;
+  while (i &gt;= 0 &amp;&amp; a[i] &gt;= a[i + 1]) i--;
+  if (i &lt; 0) return false;
+  int j = a.length - 1;
+  while (a[j] &lt;= a[i]) j--;
+  int t = a[i]; a[i] = a[j]; a[j] = t;
+  for (int lo = i + 1, hi = a.length - 1; lo &lt; hi; lo++, hi--) {
+    int s = a[lo]; a[lo] = a[hi]; a[hi] = s;
+  }
+  return true;
+}</pre>
+  <ul class="pf"><li>next permutation は最初にソートしてから</li><li>1 shl n は n が大きいと Int 溢れ(Long に)</li></ul>
+</section>
+<section class="block cat-dp">
+  <div class="bh">
+    <span class="cat">動的計画法</span>
+    <span class="title">LIS / LCS / 編集距離</span>
+    <span class="sub">部分列 DP</span>
+    <span class="cx">O(N log N) / O(NM)</span>
+  </div>
+  <p class="lead">LIS は末尾最小値を二分探索で更新。LCS・編集距離は 2 次元 DP 表。</p>
+  <pre class="dia">LIS: tail[k] = 長さ k+1 の増加列の末尾の最小値
+ 各 x を lower_bound で 置換 or 追加 → 長さが答え
+LCS/編集距離: dp[i][j] を表で
+ 一致なら ＼+1 / 不一致は周囲の最小から</pre>
+  <pre class="code"><span class="cm">// LIS (最長増加部分列) O(N log N)</span>
+static int lis(int[] a) {
+  ArrayList&lt;Integer&gt; tail = new ArrayList&lt;&gt;();
+  for (int x : a) {
+    int p = Collections.binarySearch(tail, x);
+    if (p &lt; 0) p = -(p + 1);
+    if (p == tail.size()) tail.add(x); else tail.set(p, x);
+  }
+  return tail.size();
+}
+<span class="cm">// LCS (最長共通部分列) O(NM)</span>
+static int lcs(String s, String t) {
+  int n = s.length(), m = t.length();
+  int[][] dp = new int[n + 1][m + 1];
+  for (int i = 0; i &lt; n; i++) for (int j = 0; j &lt; m; j++)
+    dp[i + 1][j + 1] = s.charAt(i) == t.charAt(j) ? dp[i][j] + 1
+                       : Math.max(dp[i][j + 1], dp[i + 1][j]);
+  return dp[n][m];
+}
+<span class="cm">// 編集距離 (Levenshtein) O(NM)</span>
+static int editDistance(String s, String t) {
+  int n = s.length(), m = t.length();
+  int[][] dp = new int[n + 1][m + 1];
+  for (int i = 0; i &lt;= n; i++) dp[i][0] = i;
+  for (int j = 0; j &lt;= m; j++) dp[0][j] = j;
+  for (int i = 1; i &lt;= n; i++) for (int j = 1; j &lt;= m; j++) {
+    int c = s.charAt(i - 1) == t.charAt(j - 1) ? 0 : 1;
+    dp[i][j] = Math.min(Math.min(dp[i - 1][j] + 1, dp[i][j - 1] + 1), dp[i - 1][j - 1] + c);
+  }
+  return dp[n][m];
+}</pre>
+  <ul class="pf"><li>LIS 広義単調増加は lower→upper bound に変える</li><li>LCS/編集距離は O(NM) メモリ。長いと 1 次元ロールで節約</li></ul>
+</section>
+<section class="block cat-math">
+  <div class="bh">
+    <span class="cat">数学</span>
+    <span class="title">素因数分解 / 約数</span>
+    <span class="sub">√N の整数論</span>
+    <span class="cx">O(√N)</span>
+  </div>
+  <p class="lead">p=2 から割り続ける素因数分解。約数は d と n/d をペアで集める。素数判定も同様。</p>
+  <pre class="dia">factorize: p=2.. (p*p&lt;=v) の間割り続ける
+ 残った v&gt;1 は最大の素因数
+ 360 = 2^3 · 3^2 · 5
+divisors: d*d&lt;=n, n%d==0 で d と n/d を集める
+ 12 の約数 = 1 2 3 4 6 12</pre>
+  <pre class="code"><span class="cm">// 素因数分解 {素因数: 指数} O(√N)</span>
+static Map&lt;Long, Integer&gt; factorize(long n) {
+  Map&lt;Long, Integer&gt; res = new LinkedHashMap&lt;&gt;();
+  long v = n;
+  for (long p = 2; p * p &lt;= v; p++)
+    while (v % p == 0) { res.merge(p, 1, Integer::sum); v /= p; }
+  if (v &gt; 1) res.merge(v, 1, Integer::sum);
+  return res;
+}
+<span class="cm">// 約数列挙 (ソート済み) O(√N)</span>
+static List&lt;Long&gt; divisors(long n) {
+  List&lt;Long&gt; small = new ArrayList&lt;&gt;(), large = new ArrayList&lt;&gt;();
+  for (long d = 1; d * d &lt;= n; d++)
+    if (n % d == 0) { small.add(d); if (d != n / d) large.add(n / d); }
+  for (int i = large.size() - 1; i &gt;= 0; i--) small.add(large.get(i));
+  return small;
+}
+static boolean isPrime(long n) {
+  if (n &lt; 2) return false;
+  for (long d = 2; d * d &lt;= n; d++) if (n % d == 0) return false;
+  return true;
+}</pre>
+  <ul class="pf"><li>p*p&lt;=v / d*d&lt;=n で √N 打ち切り(オーバーフローは long)</li><li>クエリが多いなら篩で最小素因数表(spf)を作り O(log N) に</li></ul>
+</section>
+<section class="block cat-dp">
+  <div class="bh">
+    <span class="cat">動的計画法</span>
+    <span class="title">bitDP (TSP)</span>
+    <span class="sub">巡回セールスマン</span>
+    <span class="cx">O(2ᴺN²)</span>
+  </div>
+  <p class="lead">訪問済み集合を bit で持つ DP。N≤16 程度。全頂点を回って戻る最小コスト等。</p>
+  <pre class="dia">dp[S][v] = 訪問済み集合 S で今 v にいる最小コスト
+ 0 から出発: dp[{0}][0] = 0
+ S に未訪問 to を足して遷移
+最後に全訪問+0へ戻る最小。N&lt;=16 (2^16·16^2)</pre>
+  <pre class="code"><span class="cm">// bitDP 巡回セールスマン O(2^N N^2). N&lt;=16</span>
+static long tsp(long[][] dist) {
+  long INF = Long.MAX_VALUE / 4; int n = dist.length, full = 1 &lt;&lt; n;
+  long[][] dp = new long[full][n];
+  for (long[] row : dp) Arrays.fill(row, INF);
+  dp[1][0] = 0;
+  for (int s = 0; s &lt; full; s++) for (int v = 0; v &lt; n; v++) {
+    if (dp[s][v] == INF) continue;
+    for (int to = 0; to &lt; n; to++) {
+      if ((s &gt;&gt; to &amp; 1) == 1) continue;
+      int ns = s | (1 &lt;&lt; to);
+      if (dp[s][v] + dist[v][to] &lt; dp[ns][to]) dp[ns][to] = dp[s][v] + dist[v][to];
+    }
+  }
+  long res = INF;
+  for (int v = 1; v &lt; n; v++)
+    if (dp[full - 1][v] != INF) res = Math.min(res, dp[full - 1][v] + dist[v][0]);
+  return res;
+}</pre>
+  <ul class="pf"><li>1 shl N の集合サイズ。N&gt;20 で破綻</li><li>到達不能 (INF) からは遷移しない</li></ul>
+</section>
+<section class="block cat-string">
+  <div class="bh">
+    <span class="cat">文字列</span>
+    <span class="title">ローリングハッシュ</span>
+    <span class="sub">部分文字列比較 O(1)</span>
+    <span class="cx">構築 O(N) / 比較 O(1)</span>
+  </div>
+  <p class="lead">文字列を多項式ハッシュに。mod 2⁶¹-1 で衝突回避。部分文字列の一致判定が O(1)。</p>
+  <pre class="dia">h[i] = s[0..i-1] の多項式ハッシュ (base 進数)
+ get(l,r) = h[r] - h[l]·base^(r-l)  (mod 2^61-1)
+部分文字列が等しい ⇔ ハッシュ一致 (O(1))
+base はランダム、mod は 2^61-1 が安全</pre>
+  <pre class="code"><span class="cm">// ローリングハッシュ (mod 2^61-1)。部分文字列比較 O(1)</span>
+class RollingHash {
+  static final long MOD = (1L &lt;&lt; 61) - 1;
+  static final long BASE = 1_000_003L;
+  long[] h, pw;
+  RollingHash(String s) {
+    int n = s.length();
+    h = new long[n + 1]; pw = new long[n + 1]; pw[0] = 1;
+    for (int i = 0; i &lt; n; i++) {
+      h[i + 1] = mul(h[i], BASE) + s.charAt(i);
+      if (h[i + 1] &gt;= MOD) h[i + 1] -= MOD;
+      pw[i + 1] = mul(pw[i], BASE);
+    }
+  }
+  static long mul(long a, long b) {               <span class="cm">// a*b mod (2^61-1)</span>
+    long hi = Math.multiplyHigh(a, b), lo = a * b;
+    long r = (hi &lt;&lt; 3) + (lo &gt;&gt;&gt; 61) + (lo &amp; MOD);
+    if (r &gt;= MOD) r -= MOD;
+    return r;
+  }
+  long get(int l, int r) {                        <span class="cm">// [l, r)</span>
+    long res = h[r] - mul(h[l], pw[r - l]);
+    if (res &lt; 0) res += MOD;
+    return res;
+  }
+}</pre>
+  <ul class="pf"><li>単一ハッシュは衝突リスク。心配なら 2 種の mod で二重化</li><li>C++ は __int128、Java/Kotlin は Math.multiplyHigh で 128bit 乗算</li></ul>
+</section>
+<section class="block cat-geometry">
+  <div class="bh">
+    <span class="cat">幾何</span>
+    <span class="title">平面幾何</span>
+    <span class="sub">ccw / 線分交差 / 凸包</span>
+    <span class="cx">凸包 O(N log N)</span>
+  </div>
+  <p class="lead">ccw(外積で回転方向)が基礎。線分交差・凸包・面積。誤差は EPS で比較、整数なら Long で。</p>
+  <pre class="dia">ccw(a,b,c): 外積の符号で回転方向
+  1:反時計 -1:時計 0/±2:一直線上
+線分交差: 互いに相手を挟む ⇔ 交差
+凸包(Andrew): x昇順→下側→上側
+ cross&lt;EPS で pop (左折だけ残す=反時計回り)</pre>
+  <pre class="code">static final double EPS = 1e-9;
+static double[] sub(double[] a, double[] b) { return new double[]{a[0]-b[0], a[1]-b[1]}; }
+static double cross(double[] a, double[] b) { return a[0]*b[1] - a[1]*b[0]; }
+static double dot(double[] a, double[] b) { return a[0]*b[0] + a[1]*b[1]; }
+<span class="cm">// 1:反時計 -1:時計 2:c-a-b -2:a-b-c 0:線分ab上</span>
+static int ccw(double[] a, double[] b, double[] c) {
+  double[] ab = sub(b, a), ac = sub(c, a);
+  double cr = cross(ab, ac);
+  if (cr &gt; EPS) return 1;
+  if (cr &lt; -EPS) return -1;
+  if (dot(ab, ac) &lt; -EPS) return 2;
+  if (dot(ab, ab) &lt; dot(ac, ac) - EPS) return -2;
+  return 0;
+}
+static boolean segIntersect(double[] a, double[] b, double[] c, double[] d) {
+  return ccw(a,b,c)*ccw(a,b,d) &lt;= 0 &amp;&amp; ccw(c,d,a)*ccw(c,d,b) &lt;= 0;
+}
+<span class="cm">// 凸包(反時計回り) O(N log N)</span>
+static List&lt;double[]&gt; convexHull(List&lt;double[]&gt; ps) {
+  List&lt;double[]&gt; s = new ArrayList&lt;&gt;(ps);
+  s.sort((p,q) -&gt; p[0]!=q[0] ? Double.compare(p[0],q[0]) : Double.compare(p[1],q[1]));
+  int n = s.size();
+  if (n &lt;= 2) return s;
+  double[][] h = new double[2 * n][]; int k = 0;
+  for (int i = 0; i &lt; n; i++) {
+    while (k &gt;= 2 &amp;&amp; cross(sub(h[k-1], h[k-2]), sub(s.get(i), h[k-1])) &lt; EPS) k--;
+    h[k++] = s.get(i);
+  }
+  for (int i = n - 2, lower = k + 1; i &gt;= 0; i--) {
+    while (k &gt;= lower &amp;&amp; cross(sub(h[k-1], h[k-2]), sub(s.get(i), h[k-1])) &lt; EPS) k--;
+    h[k++] = s.get(i);
+  }
+  List&lt;double[]&gt; res = new ArrayList&lt;&gt;();
+  for (int i = 0; i &lt; k - 1; i++) res.add(h[i]);
+  return res;
+}
+static double polygonArea(List&lt;double[]&gt; poly) {   <span class="cm">// 反時計回りで正</span>
+  double s = 0; int n = poly.size();
+  for (int i = 0; i &lt; n; i++) s += cross(poly.get(i), poly.get((i + 1) % n));
+  return s / 2;
+}</pre>
+  <ul class="pf"><li>== でなく EPS 比較。退化(同一点・一直線)に注意</li><li>整数座標なら Long の cross で誤差ゼロにできる</li><li>凸包は一直線上の点を残すなら pop 条件を &lt; -EPS に</li></ul>
+</section>
+<section class="block cat-graph">
+  <div class="bh">
+    <span class="cat">グラフ</span>
+    <span class="title">二部マッチング</span>
+    <span class="sub">増加路 (Hopcroft不要版)</span>
+    <span class="cx">O(VE)</span>
+  </div>
+  <p class="lead">左頂点から増加路を DFS で探す。割り当て問題、最大マッチング = 最小頂点被覆(König)。</p>
+  <pre class="dia">左→右の辺。各左頂点から増加路を DFS
+ 右が空 or その相手を押し出せれば マッチ確定
+最大マッチング数 = 最小頂点被覆 (König の定理)
+used[] を頂点ごとにリセットして探索</pre>
+  <pre class="code"><span class="cm">// 増加路 DFS O(VE)。左 n, 右 m</span>
+class BipartiteMatching {
+  int n, m; List&lt;Integer&gt;[] g; int[] matchR;
+  @SuppressWarnings("unchecked")
+  BipartiteMatching(int n, int m) {
+    this.n = n; this.m = m;
+    g = new List[n];
+    for (int i = 0; i &lt; n; i++) g[i] = new ArrayList&lt;&gt;();
+    matchR = new int[m]; Arrays.fill(matchR, -1);
+  }
+  void addEdge(int u, int v) { g[u].add(v); }
+  boolean dfs(int u, boolean[] used) {
+    for (int v : g[u]) {
+      if (used[v]) continue;
+      used[v] = true;
+      if (matchR[v] == -1 || dfs(matchR[v], used)) { matchR[v] = u; return true; }
+    }
+    return false;
+  }
+  int solve() {
+    int res = 0;
+    for (int u = 0; u &lt; n; u++) if (dfs(u, new boolean[m])) res++;
+    return res;
+  }
+}</pre>
+  <ul class="pf"><li>used は左頂点ごとに毎回リセット</li><li>もっと速くしたいなら Hopcroft-Karp / Dinic</li></ul>
+</section>
+<section class="block cat-graph">
+  <div class="bh">
+    <span class="cat">グラフ</span>
+    <span class="title">Dinic 法 (最大流)</span>
+    <span class="sub">最大流 = 最小カット</span>
+    <span class="cx">O(V²E)</span>
+  </div>
+  <p class="lead">BFS でレベル分けし、レベル順に DFS で流す。最大流・最小カット・二部マッチングに。</p>
+  <pre class="dia">BFS でレベル(最短距離)を付ける
+ → レベルが増える辺だけ DFS で流す
+ 逆辺(rev)に流量を戻し増加路を表現。繰り返す
+最大流 = 最小カット。「同時不可の最小除去」に</pre>
+  <pre class="code"><span class="cm">// Dinic 最大流 O(V^2 E)。各辺 {to, cap, rev}</span>
+class Dinic {
+  int n; int[] level, iter; List&lt;long[]&gt;[] g;
+  @SuppressWarnings("unchecked")
+  Dinic(int n) {
+    this.n = n; g = new List[n];
+    for (int i = 0; i &lt; n; i++) g[i] = new ArrayList&lt;&gt;();
+    level = new int[n]; iter = new int[n];
+  }
+  void addEdge(int from, int to, long cap) {
+    g[from].add(new long[]{to, cap, g[to].size()});
+    g[to].add(new long[]{from, 0, g[from].size() - 1});
+  }
+  void bfs(int s) {
+    Arrays.fill(level, -1); level[s] = 0;
+    ArrayDeque&lt;Integer&gt; q = new ArrayDeque&lt;&gt;(); q.add(s);
+    while (!q.isEmpty()) {
+      int v = q.poll();
+      for (long[] e : g[v])
+        if (e[1] &gt; 0 &amp;&amp; level[(int) e[0]] &lt; 0) { level[(int) e[0]] = level[v] + 1; q.add((int) e[0]); }
+    }
+  }
+  long dfs(int v, int t, long f) {
+    if (v == t) return f;
+    for (; iter[v] &lt; g[v].size(); iter[v]++) {
+      long[] e = g[v].get(iter[v]); int to = (int) e[0];
+      if (e[1] &gt; 0 &amp;&amp; level[v] &lt; level[to]) {
+        long d = dfs(to, t, Math.min(f, e[1]));
+        if (d &gt; 0) { e[1] -= d; g[to].get((int) e[2])[1] += d; return d; }
+      }
+    }
+    return 0;
+  }
+  long maxFlow(int s, int t) {
+    long flow = 0;
+    while (true) {
+      bfs(s);
+      if (level[t] &lt; 0) return flow;
+      Arrays.fill(iter, 0);
+      long f;
+      while ((f = dfs(s, t, Long.MAX_VALUE / 4)) &gt; 0) flow += f;
+    }
+  }
+}</pre>
+  <ul class="pf"><li>容量は溢れない型(Long)。INF も大きすぎない値</li><li>iter[] で見た辺を再訪しない(これが効率の肝)</li></ul>
+</section>
+  </div>
+</div>
+</body>
+</html>

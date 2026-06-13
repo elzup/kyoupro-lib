@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>Dijkstra — Design C (dense)</title>
+<style>
+  @page { size: A4; margin: 9mm; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body {
+    font-family: "Hiragino Sans", -apple-system, sans-serif;
+    color: #000; margin: 0; font-size: 9px; line-height: 1.35;
+  }
+  .page { columns: 2; column-gap: 7mm; column-rule: 0.5px solid #ccc; }
+  .block { break-inside: avoid; margin-bottom: 6px; }
+
+  .head { column-span: all; border-bottom: 1.5px solid #000; margin-bottom: 6px;
+          padding-bottom: 3px; display: flex; align-items: baseline; gap: 7px; }
+  .head h1 { font-size: 14px; margin: 0; }
+  .head .tag { font-size: 8.5px; color: #333; }
+  .head .cx { margin-left: auto; font-family: ui-monospace, Menlo, monospace;
+              font-weight: 700; font-size: 9px; border: 1px solid #000; padding: 0 5px; }
+
+  .lead { column-span: all; font-size: 8.8px; margin-bottom: 6px; }
+
+  h2 { font-size: 8.5px; text-transform: uppercase; letter-spacing: 0.8px;
+       margin: 0 0 2px; border-bottom: 0.5px solid #999; padding-bottom: 1px; }
+  pre { margin: 0; font-family: ui-monospace, Menlo, Consolas, monospace; }
+
+  .diagram pre { font-size: 8.6px; line-height: 1.25; }
+
+  .code { margin-bottom: 5px; }
+  .code .l { font-family: ui-monospace, Menlo, monospace; font-weight: 700;
+             font-size: 7.8px; letter-spacing: 0.5px; background: #000; color: #fff;
+             display: inline-block; padding: 0 5px; margin-bottom: 1px; }
+  .code pre { font-size: 7.8px; line-height: 1.28; border-left: 1.5px solid #000;
+              padding-left: 5px; }
+  .cm { color: #888; }
+
+  ul { margin: 0; padding-left: 13px; }
+  li { margin: 1px 0; }
+  code.k { font-family: ui-monospace, Menlo, monospace; background: #eee;
+           padding: 0 2px; font-size: 8px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="head">
+    <h1>Dijkstra 法</h1>
+    <span class="tag">単一始点・非負重み最短路</span>
+    <span class="cx">O((V+E) log V)</span>
+  </div>
+  <div class="lead">優先度キューで未確定のうち最小距離の頂点を順に確定。<b>負辺不可</b>（→ Bellman-Ford）。<code class="k">g[v] = (to, cost)</code> の隣接リスト。</div>
+
+  <div class="block diagram">
+    <h2>図解 — 確定順</h2>
+<pre>(0)──5──▶(1)   start = 0
+ │        ▲    init  dist=[0, ∞, ∞]
+ 2        1    pop0  1=5 2=2 →[0,5,2]
+ ▼        │    pop2  1=2+1=3 →[0,3,2]
+(2)───────┘    pop1  settled
+0▶1:5 0▶2:2 2▶1:1     ans [0,3,2]</pre>
+  </div>
+
+  <div class="block code">
+    <span class="l">KOTLIN</span>
+<pre>fun dijkstra(g: Array&lt;MutableList&lt;Pair&lt;Int,Long&gt;&gt;&gt;, s: Int): LongArray {
+  val dist = LongArray(g.size){Long.MAX_VALUE/4}; dist[s]=0
+  val pq = PriorityQueue&lt;Pair&lt;Long,Int&gt;&gt;(compareBy{it.first})
+  pq.add(0L to s)
+  while (pq.isNotEmpty()) {
+    val (d,v) = pq.poll()
+    if (d &gt; dist[v]) continue           <span class="cm">// 古い距離は捨てる</span>
+    for ((to,c) in g[v]) if (d+c &lt; dist[to]) {
+      dist[to]=d+c; pq.add(dist[to] to to) }
+  }
+  return dist
+}</pre>
+  </div>
+
+  <div class="block code">
+    <span class="l">PYTHON</span>
+<pre>import heapq
+def dijkstra(g, s):
+    dist = [float('inf')]*len(g); dist[s]=0
+    pq = [(0, s)]                        <span class="cm"># (dist, vertex)</span>
+    while pq:
+        d, v = heapq.heappop(pq)
+        if d &gt; dist[v]: continue         <span class="cm"># 古い距離は捨てる</span>
+        for to, c in g[v]:
+            if d+c &lt; dist[to]:
+                dist[to]=d+c; heapq.heappush(pq,(dist[to],to))
+    return dist</pre>
+  </div>
+
+  <div class="block code">
+    <span class="l">JAVA</span>
+<pre>static long[] dijkstra(List&lt;long[]&gt;[] g, int s) {  <span class="cm">// g[v]={to,cost}</span>
+  long[] dist = new long[g.length];
+  Arrays.fill(dist, Long.MAX_VALUE/4); dist[s]=0;
+  var pq = new PriorityQueue&lt;long[]&gt;((a,b)-&gt;Long.compare(a[0],b[0]));
+  pq.add(new long[]{0,s});
+  while (!pq.isEmpty()) {
+    long[] t=pq.poll(); long d=t[0]; int v=(int)t[1];
+    if (d &gt; dist[v]) continue;
+    for (long[] e : g[v]) { int to=(int)e[0]; long c=e[1];
+      if (d+c &lt; dist[to]) { dist[to]=d+c; pq.add(new long[]{dist[to],to}); } }
+  }
+  return dist;
+}</pre>
+  </div>
+
+  <div class="block code">
+    <span class="l">C++</span>
+<pre>using ll=long long;                  <span class="cm">// g[v]={to,cost}</span>
+vector&lt;ll&gt; dijkstra(vector&lt;vector&lt;pair&lt;int,ll&gt;&gt;&gt;&amp; g, int s){
+  vector&lt;ll&gt; dist(g.size(), 4e18); dist[s]=0;
+  priority_queue&lt;pair&lt;ll,int&gt;,vector&lt;pair&lt;ll,int&gt;&gt;,greater&lt;&gt;&gt; pq;
+  pq.push({0,s});
+  while(!pq.empty()){
+    auto[d,v]=pq.top(); pq.pop();
+    if(d &gt; dist[v]) continue;
+    for(auto[to,c]:g[v]) if(d+c &lt; dist[to]){
+      dist[to]=d+c; pq.push({dist[to],to}); }
+  }
+  return dist;
+}</pre>
+  </div>
+
+  <div class="block">
+    <h2>罠</h2>
+    <ul>
+      <li><code class="k">if(d&gt;dist[v])continue</code> 必須（古い距離を捨てる、無いと TLE）</li>
+      <li>負辺は不可 → Bellman-Ford</li>
+      <li>INF は加算で溢れない値。C++ <code class="k">4e18</code> / 他 <code class="k">LONG_MAX/4</code></li>
+      <li>経路復元は <code class="k">prev[to]=v</code> を終点から逆順</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>

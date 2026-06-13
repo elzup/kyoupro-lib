@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>入力テンプレ — Python (category)</title>
+<style>
+@page { size: A4; margin: 9mm; }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { font-family:"Hiragino Sans","Noto Sans JP",-apple-system,sans-serif;
+       color:#000; margin:0; font-size:9px; line-height:1.35; }
+.mast { display:flex; align-items:baseline; gap:10px; padding-bottom:4px; margin-bottom:7px; }
+.mast h1 { font-size:16px; margin:0; }
+.mast .lang { font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospace; font-weight:700; font-size:11px; padding:1px 8px; }
+.mast .note { margin-left:auto; font-size:8px; color:#666; text-align:right; line-height:1.3; }
+.legend { font-size:8px; color:#555; margin:-3px 0 7px; }
+.cols { columns:2; column-gap:6mm; }
+.block { break-inside:avoid; margin-bottom:7px; padding-bottom:5px; }
+.bh { display:flex; align-items:baseline; gap:5px; flex-wrap:wrap; }
+.bh .cat { font-size:7px; letter-spacing:0.5px; padding:0 4px; border-radius:2px; }
+.bh .title { font-size:11px; font-weight:700; }
+.bh .sub { font-size:8px; color:#555; }
+.bh .cx { margin-left:auto; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospace; font-weight:700; font-size:8.5px;
+          padding:0 4px; white-space:nowrap; }
+.lead { font-size:8.6px; margin:3px 0 4px; }
+pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospace; }
+.dia { font-size:8.4px; line-height:1.28; padding:3px 6px; margin-bottom:4px;
+       white-space:pre; overflow:hidden; }
+.code { font-size:8px; line-height:1.32; padding:2px 0 2px 6px; white-space:pre; overflow:hidden; }
+.code .cm { color:#999; }
+.pf { margin:4px 0 0; padding-left:13px; }
+.pf li { font-size:8.2px; margin:1px 0; }
+@media screen {
+  body { background:#999; padding:14px; }
+  .sheet { background:#fff; max-width:200mm; margin:0 auto; padding:9mm;
+           box-shadow:0 1px 6px rgba(0,0,0,.4); }
+}
+
+.cols { column-rule:0.5px solid #ddd; }
+.block { border-bottom:0.5px solid #eee; }
+.mast { border-bottom:2px solid #111; }
+.mast .lang { background:#111; color:#fff; }
+.bh .cx { border:1px solid #888; }
+.dia { background:#fafafa; border-left:2px solid #ccc; }
+.code { border-left:2px solid #ccc; }
+.cat-ds .bh .cat{background:#ede9fe;color:#6d28d9} .cat-ds .code{border-left-color:#7c3aed}
+.cat-graph .bh .cat{background:#dbeafe;color:#1d4ed8} .cat-graph .code{border-left-color:#2563eb}
+.cat-math .bh .cat{background:#d1fae5;color:#047857} .cat-math .code{border-left-color:#059669}
+.cat-search .bh .cat{background:#ffedd5;color:#c2410c} .cat-search .code{border-left-color:#ea580c}
+.cat-util .bh .cat{background:#cffafe;color:#0e7490} .cat-util .code{border-left-color:#0891b2}
+.cat-dp .bh .cat{background:#fce7f3;color:#be185d} .cat-dp .code{border-left-color:#db2777}
+.cat-string .bh .cat{background:#e0e7ff;color:#4338ca} .cat-string .code{border-left-color:#4f46e5}
+.cat-geometry .bh .cat{background:#fee2e2;color:#b91c1c} .cat-geometry .code{border-left-color:#dc2626}
+.cat-io .bh .cat{background:#ccfbf1;color:#0f766e} .cat-io .code{border-left-color:#14b8a6}</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="mast">
+    <h1>入力テンプレ</h1>
+    <span class="lang">Python</span>
+    <span class="note">kyoupro-lib · 8 patterns · theme:category<br>print: A4 縦 / 2 段組</span>
+  </div>
+  <div class="legend">入力構成の定番パターン。先頭の「テンプレ (高速 I/O)」をコピーして本体に各パターンを埋める。</div>
+  <div class="cols">
+<section class="block cat-io">
+  <div class="bh">
+    <span class="cat">入力</span>
+    <span class="title">テンプレ (高速 I/O)</span>
+    <span class="sub">main 雛形</span>
+  </div>
+  <p class="lead">高速入出力つきの雛形。本体で読み、出力はまとめて最後に。これをコピーして使う。</p>
+  <pre class="code">import sys
+input = sys.stdin.readline      <span class="cm"># 高速化 (末尾の改行に注意; rstrip)</span>
+sys.setrecursionlimit(10 ** 6)  <span class="cm"># 深い再帰を使うなら</span>
+
+def main():
+    <span class="cm"># ... 読む ...</span>
+    pass
+
+main()</pre>
+</section>
+<section class="block cat-io">
+  <div class="bh">
+    <span class="cat">入力</span>
+    <span class="title">整数 1 個 / 複数</span>
+    <span class="sub">N / a b c</span>
+  </div>
+  <p class="lead">1 個の整数、1 行に空白区切りで複数の整数。</p>
+  <pre class="dia">入力
+5
+3 7 2</pre><pre class="code">n = int(input())                        <span class="cm"># 1 個</span>
+a, b, c = map(int, input().split())     <span class="cm"># 1 行に複数</span></pre>
+</section>
+<section class="block cat-io">
+  <div class="bh">
+    <span class="cat">入力</span>
+    <span class="title">N + 配列 (1 行)</span>
+    <span class="sub">長さ N の数列</span>
+  </div>
+  <p class="lead">N を読み、続けて N 個の数列。next/cin は空白・改行どちらの区切りも吸収する。</p>
+  <pre class="dia">入力          読み取り
+3             n = 3
+1 2 3         a = [1, 2, 3]</pre><pre class="code">n = int(input())
+a = list(map(int, input().split()))     <span class="cm"># 1 行に n 個</span></pre>
+</section>
+<section class="block cat-io">
+  <div class="bh">
+    <span class="cat">入力</span>
+    <span class="title">N 行 (各行 a b)</span>
+    <span class="sub">辺 / ペアの列</span>
+  </div>
+  <p class="lead">N 行それぞれに複数の値。グラフの辺入力など。</p>
+  <pre class="dia">入力
+3
+1 2
+2 3
+1 3</pre><pre class="code">n = int(input())
+e = [tuple(map(int, input().split())) for _ in range(n)]</pre>
+</section>
+<section class="block cat-io">
+  <div class="bh">
+    <span class="cat">入力</span>
+    <span class="title">グリッド H×W</span>
+    <span class="sub">文字列 H 行</span>
+  </div>
+  <p class="lead">H W を読み、続けて H 行の文字列。grid[y][x] でアクセス。</p>
+  <pre class="dia">入力
+2 3
+.#.
+..#</pre><pre class="code">h, w = map(int, input().split())
+grid = [input().rstrip() for _ in range(h)]   <span class="cm"># rstrip で改行除去</span></pre>
+</section>
+<section class="block cat-io">
+  <div class="bh">
+    <span class="cat">入力</span>
+    <span class="title">文字列</span>
+    <span class="sub">1 語 / 1 行丸ごと</span>
+  </div>
+  <p class="lead">空白で区切られた 1 語と、空白を含む 1 行全体の読み分け。</p>
+  <pre class="code">s = input().rstrip()                    <span class="cm"># 1 行 (= 1 語想定なら split)</span>
+parts = input().split()                 <span class="cm"># 空白区切りで分解</span></pre>
+</section>
+<section class="block cat-io">
+  <div class="bh">
+    <span class="cat">入力</span>
+    <span class="title">複数テストケース</span>
+    <span class="sub">T 回 / 0 終端</span>
+  </div>
+  <p class="lead">クエリ回数 T が先頭にある形と、ICPC 系の「0 で終端」する形。</p>
+  <pre class="code">t = int(input())
+for _ in range(t):
+    pass                    <span class="cm"># 1 ケース</span>
+<span class="cm"># ICPC: 0 終端</span>
+while True:
+    n = int(input())
+    if n == 0:
+        break</pre>
+</section>
+<section class="block cat-io">
+  <div class="bh">
+    <span class="cat">入力</span>
+    <span class="title">出力</span>
+    <span class="sub">配列 / 小数 / 高速</span>
+  </div>
+  <p class="lead">配列をスペース区切り、小数の桁指定、大量出力はまとめて。</p>
+  <pre class="code">print(*a)                                   <span class="cm"># 配列をスペース区切り</span>
+print(f"{ans:.10f}")                        <span class="cm"># 小数 10 桁</span>
+sys.stdout.write("\n".join(map(str, res)) + "\n")  <span class="cm"># 大量出力はまとめて</span></pre>
+</section>
+  </div>
+</div>
+</body>
+</html>
