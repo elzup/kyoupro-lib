@@ -61,7 +61,8 @@ body { font-family:"Hiragino Sans","Noto Sans JP",-apple-system,sans-serif;
 pre { margin:0; font-family:${MONO_FONT}; }
 .dia { font-size:8.4px; line-height:1.28; padding:3px 6px; margin-bottom:4px;
        white-space:pre; overflow:hidden; }
-.code { font-size:8px; line-height:1.32; padding:2px 0 2px 6px; white-space:pre; overflow:hidden; }
+.code { font-size:8px; line-height:1.32; padding:2px 0 2px 6px;
+        white-space:pre-wrap; overflow-wrap:anywhere; }  /* 長い行は折り返し(見切れ防止) */
 .code .cm { color:#999; }
 .pf { margin:4px 0 0; padding-left:13px; }
 .pf li { font-size:8.2px; margin:1px 0; }
@@ -225,9 +226,9 @@ const index = `<!DOCTYPE html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>競プロ早見表 (Kotlin / Python / Java / C++)</title>
 <style>
-:root{color-scheme:light dark;}
 body{font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
-     max-width:680px;margin:0 auto;padding:32px 18px 60px;line-height:1.6;color:#1a1a1a;}
+     max-width:680px;margin:0 auto;padding:32px 18px 60px;line-height:1.6;
+     color:#1a1a1a;background:#fff;}
 h1{font-size:22px;margin:0 0 4px;}
 .sub{color:#666;margin:0 0 20px;}
 h2{font-size:15px;margin:22px 0 6px;}

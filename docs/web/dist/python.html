@@ -27,7 +27,8 @@ body { font-family:"Hiragino Sans","Noto Sans JP",-apple-system,sans-serif;
 pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospace; }
 .dia { font-size:8.4px; line-height:1.28; padding:3px 6px; margin-bottom:4px;
        white-space:pre; overflow:hidden; }
-.code { font-size:8px; line-height:1.32; padding:2px 0 2px 6px; white-space:pre; overflow:hidden; }
+.code { font-size:8px; line-height:1.32; padding:2px 0 2px 6px;
+        white-space:pre-wrap; overflow-wrap:anywhere; }  /* 長い行は折り返し(見切れ防止) */
 .code .cm { color:#999; }
 .pf { margin:4px 0 0; padding-left:13px; }
 .pf li { font-size:8.2px; margin:1px 0; }
