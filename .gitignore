@@ -1,0 +1,20 @@
+# Kotlin / JVM
+*.class
+*.jar
+build/
+out/
+.gradle/
+.kotlin/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# OS
+.DS_Store
+
+# テストケース・一時ファイル
+*.in
+*.out
+tmp/
