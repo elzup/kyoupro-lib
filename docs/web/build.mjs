@@ -69,6 +69,14 @@ pre { margin:0; font-family:${MONO_FONT}; }
   body { background:#999; padding:14px; }
   .sheet { background:#fff; max-width:200mm; margin:0 auto; padding:9mm;
            box-shadow:0 1px 6px rgba(0,0,0,.4); }
+}
+/* 若干のレスポンシブ: 狭い画面は 1 段組・少し拡大・コードは横スクロール (印刷は A4 2 段組のまま) */
+@media screen and (max-width:760px) {
+  body { background:#fff; padding:0; }
+  .sheet { max-width:none; box-shadow:none; padding:16px; font-size:11px; }
+  .cols { columns:1; column-rule:none; }
+  .dia, .code { overflow-x:auto; }
+  .mast .note { font-size:9px; }
 }`
 
 const CAT_COLOR = {
@@ -156,6 +164,7 @@ const shell = (title, h1, lang, note, legend, blocks, themeId) => `<!DOCTYPE htm
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${title}</title>
 <style>${baseCss}\n${THEMES[themeId]}</style>
 </head>
@@ -176,21 +185,21 @@ ${blocks}
 
 const page = (lang, themeId) =>
   shell(
-    `競プロ早見 — ${lang.label} (${themeId})`,
+    `競プロ早見表 — ${lang.label}`,
     '競プロ早見表',
     lang,
-    `kyoupro-lib · ${snippets.length} topics · theme:${themeId}<br>print: A4 縦 / 2 段組`,
-    '使う場面 → 図解 → コード → 罠 の順。<span class="cm">// 灰色はコメント</span>。計算量は右上。',
+    `${snippets.length} topics · 印刷対応 (A4)`,
+    '各項目は 使う場面 → 図解 → コード → 罠 の順。<span class="cm">// 灰色はコメント</span>、計算量は右上。',
     snippets.map((s) => renderBlock(s, lang.id)).join('\n'),
     themeId
   )
 
 const ioPage = (lang, themeId) =>
   shell(
-    `入力テンプレ — ${lang.label} (${themeId})`,
+    `入力テンプレ — ${lang.label}`,
     '入力テンプレ',
     lang,
-    `kyoupro-lib · ${ioPatterns.length} patterns · theme:${themeId}<br>print: A4 縦 / 2 段組`,
+    `${ioPatterns.length} patterns · 印刷対応 (A4)`,
     '入力構成の定番パターン。先頭の「テンプレ (高速 I/O)」をコピーして本体に各パターンを埋める。',
     ioPatterns.map((p) => renderIoBlock(p, lang.id)).join('\n'),
     themeId
@@ -212,13 +221,27 @@ for (const themeId of Object.keys(THEMES)) {
 const algoLinks = LANGS.map((l) => `<li><a href="${l.id}.html">${l.label}</a> — ${l.id}.html</li>`).join('\n')
 const ioLinks = LANGS.map((l) => `<li><a href="io-${l.id}.html">${l.label}</a> — io-${l.id}.html</li>`).join('\n')
 const index = `<!DOCTYPE html>
-<html lang="ja"><head><meta charset="UTF-8"><title>競プロ早見表</title>
-<style>body{font-family:sans-serif;max-width:640px;margin:40px auto;padding:0 16px;}
-h1{font-size:20px;} h2{font-size:15px;margin-top:24px;} li{margin:6px 0;} a{font-weight:700;}
-.cols2{display:flex;gap:40px;} ul{margin:6px 0;}</style></head>
+<html lang="ja"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>競プロ早見表 (Kotlin / Python / Java / C++)</title>
+<style>
+:root{color-scheme:light dark;}
+body{font-family:-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
+     max-width:680px;margin:0 auto;padding:32px 18px 60px;line-height:1.6;color:#1a1a1a;}
+h1{font-size:22px;margin:0 0 4px;}
+.sub{color:#666;margin:0 0 20px;}
+h2{font-size:15px;margin:22px 0 6px;}
+li{margin:7px 0;} a{font-weight:600;text-decoration:none;color:#1d4ed8;}
+a:hover{text-decoration:underline;}
+ul{margin:6px 0;padding-left:20px;}
+.cols2{display:flex;gap:40px;flex-wrap:wrap;}
+.cols2>div{flex:1 1 240px;}
+.foot{color:#888;font-size:12px;margin-top:28px;}
+@media (max-width:480px){body{padding:20px 16px 48px;} h1{font-size:20px;}}
+</style></head>
 <body>
-<h1>競プロ早見表 (4 言語)</h1>
-<p>使う言語のページを開き、Cmd+P → A4 縦で印刷してください。各ページはその言語のコードのみ。</p>
+<h1>競プロ早見表</h1>
+<p class="sub">競技プログラミングの定番アルゴリズムと入力パターンを Kotlin / Python / Java / C++ でまとめた早見表です。使う言語のページを開いてください（A4 印刷にも対応）。</p>
 <div class="cols2">
 <div>
 <h2>アルゴリズム早見表 (${snippets.length} topics)</h2>
@@ -233,7 +256,7 @@ ${ioLinks}
 </ul>
 </div>
 </div>
-<p style="color:#666;font-size:13px;">theme: ${DEFAULT_THEME}</p>
+<p class="foot"><a href="https://github.com/elzup/kyoupro-lib">GitHub: elzup/kyoupro-lib</a></p>
 </body></html>`
 writeFileSync(join(distDir, 'index.html'), index)
 

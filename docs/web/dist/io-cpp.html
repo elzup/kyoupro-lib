@@ -2,7 +2,8 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<title>入力テンプレ — C++ (category)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>入力テンプレ — C++</title>
 <style>
 @page { size: A4; margin: 9mm; }
 * { box-sizing: border-box; }
@@ -35,6 +36,14 @@ pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospa
   .sheet { background:#fff; max-width:200mm; margin:0 auto; padding:9mm;
            box-shadow:0 1px 6px rgba(0,0,0,.4); }
 }
+/* 若干のレスポンシブ: 狭い画面は 1 段組・少し拡大・コードは横スクロール (印刷は A4 2 段組のまま) */
+@media screen and (max-width:760px) {
+  body { background:#fff; padding:0; }
+  .sheet { max-width:none; box-shadow:none; padding:16px; font-size:11px; }
+  .cols { columns:1; column-rule:none; }
+  .dia, .code { overflow-x:auto; }
+  .mast .note { font-size:9px; }
+}
 
 .cols { column-rule:0.5px solid #ddd; }
 .block { border-bottom:0.5px solid #eee; }
@@ -58,7 +67,7 @@ pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospa
   <div class="mast">
     <h1>入力テンプレ</h1>
     <span class="lang">C++</span>
-    <span class="note">kyoupro-lib · 8 patterns · theme:category<br>print: A4 縦 / 2 段組</span>
+    <span class="note">8 patterns · 印刷対応 (A4)</span>
   </div>
   <div class="legend">入力構成の定番パターン。先頭の「テンプレ (高速 I/O)」をコピーして本体に各パターンを埋める。</div>
   <div class="cols">
