@@ -1,0 +1,13 @@
+{
+  "// solve を単独ウィンドウ (code atcoder/solve) で開いたとき用": "ここは Main.kt が1つだけなので root package 衝突が無く、診断ONで正確な error 検査ができる",
+  "kotlin.languageServer.enabled": true,
+  "kotlin.debugAdapter.enabled": true,
+  "kotlin.diagnostics.enabled": true,
+  "code-runner.executorMap": {
+    "kotlin": "cd $dir && kotlinc $fileName -include-runtime -d $fileNameWithoutExt.jar 2>/dev/null && if [ -f in.txt ]; then java -jar $fileNameWithoutExt.jar < in.txt; else java -jar $fileNameWithoutExt.jar; fi"
+  },
+  "code-runner.runInTerminal": true,
+  "code-runner.saveFileBeforeRun": true,
+  "code-runner.clearPreviousOutput": true,
+  "code-runner.ignoreSelection": true
+}
