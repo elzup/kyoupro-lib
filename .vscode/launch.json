@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "kotlin",
+      "request": "launch",
+      "name": "Debug solve/Main.kt (breakpoints)",
+      "projectRoot": "${workspaceFolder}/atcoder/solve",
+      "mainClass": "MainKt"
+    }
+  ]
+}

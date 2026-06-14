@@ -1,0 +1,44 @@
+{
+  "workbench.colorCustomizations": {
+    "editorBracketHighlight.foreground1": "#FFD700",
+    "editorBracketHighlight.foreground2": "#DA70D6",
+    "editorBracketHighlight.foreground3": "#179fff",
+    "editorBracketPairGuide.background1": "#ffd90080",
+    "editorBracketPairGuide.background2": "#CC66CC80",
+    "editorBracketPairGuide.background3": "#87CEFA80",
+    "editorBracketPairGuide.activeBackground1": "#ffd90080",
+    "editorBracketPairGuide.activeBackground2": "#CC66CC80",
+    "editorBracketPairGuide.activeBackground3": "#87CEFA80",
+    "activityBar.background": "#033333",
+    "titleBar.activeBackground": "#054848",
+    "titleBar.activeForeground": "#E9FEFE",
+    "titleBar.inactiveBackground": "#033333",
+    "titleBar.inactiveForeground": "#E9FEFE",
+    "statusBar.background": "#033333",
+    "statusBar.foreground": "#E9FEFE",
+    "statusBar.debuggingBackground": "#033333",
+    "statusBar.debuggingForeground": "#E9FEFE",
+    "statusBar.noFolderBackground": "#033333",
+    "statusBar.noFolderForeground": "#E9FEFE"
+  },
+
+  "// Run Code (Code Runner)": "コンパイル & 実行。同ディレクトリに in.txt があれば標準入力にリダイレクト、無ければ手入力",
+  "code-runner.executorMap": {
+    "kotlin": "cd $dir && kotlinc $fileName -include-runtime -d $fileNameWithoutExt.jar 2>/dev/null && if [ -f in.txt ]; then java -jar $fileNameWithoutExt.jar < in.txt; else java -jar $fileNameWithoutExt.jar; fi"
+  },
+  "code-runner.runInTerminal": true,
+  "code-runner.saveFileBeforeRun": true,
+  "code-runner.clearPreviousOutput": true,
+  "code-runner.ignoreSelection": true,
+
+  "// Kotlin LSP (fwcd.kotlin)": "各タスクに pom.xml があり独立 Maven プロジェクトなので、root package 衝突なしで未定義検知・補完・整形が効く (診断ON)。lib/ 直接編集時のみ衝突ノイズが出る点に注意",
+  "kotlin.languageServer.enabled": true,
+  "kotlin.debugAdapter.enabled": true,
+  "kotlin.diagnostics.enabled": true,
+
+  "// 整形 (format on save) — fwcd の LSP が提供": "",
+  "[kotlin]": {
+    "editor.defaultFormatter": "fwcd.kotlin",
+    "editor.formatOnSave": true
+  }
+}

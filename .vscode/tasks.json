@@ -1,0 +1,23 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Kotlin: run current",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${fileDirname}/../../run.sh", "${fileDirname}"],
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true, "focus": false },
+      "problemMatcher": []
+    },
+    {
+      "label": "Kotlin: test current (oj)",
+      "type": "shell",
+      "command": "bash",
+      "args": ["${fileDirname}/../../t.sh", "${fileDirname}"],
+      "group": { "kind": "test", "isDefault": true },
+      "presentation": { "reveal": "always", "panel": "shared", "clear": true, "focus": false },
+      "problemMatcher": []
+    }
+  ]
+}

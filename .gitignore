@@ -3,16 +3,30 @@
 *.jar
 build/
 out/
+target/
 .gradle/
 .kotlin/
 
 # IDE
 .idea/
 *.iml
-.vscode/
+# .vscode は共有設定ファイルだけ追跡する (global gitignore の .vscode/ を上書き)
+!.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/tasks.json
 
 # OS
 .DS_Store
+
+# タスクごとに自動生成する pom (LSP 用・template/solve のは追跡)
+atcoder/*/*/pom.xml
+
+# コンテスト解答はここでは追跡しない (sync.sh で competitive-pg-kotlin へアーカイブ)
+atcoder/*/*/Main.kt
+atcoder/*/*/.vscode/
 
 # テストケース・一時ファイル
 *.in
