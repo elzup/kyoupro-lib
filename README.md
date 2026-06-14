@@ -106,9 +106,19 @@ cd docs/web && node build.mjs   # → dist/{kotlin,python,java,cpp}.html
 
 ```bash
 cd atcoder
-./new.sh abc415        # abc415/{a..g}/Main.kt を template から生成
-./run.sh abc415/a < in # コンパイル & 実行
+./new.sh abc415        # abc415/{a..g}/Main.kt を生成 + 各 test/ にサンプル自動DL
+./run.sh abc415/a      # 全サンプル実行して出力 + AC/WA 表示 (test/ 無ければ自動DL / in.txt 優先)
+./t.sh   abc415/a      # oj で全サンプル正式判定 (test/ 無ければ自動DL)
+./dl.sh  abc415/a      # サンプルだけ明示DL (普段は run/t が自動でやるので不要)
+./sync.sh abc415       # 解いた問題を competitive-pg-kotlin にアーカイブ (未着手は skip)
 ```
+
+VSCode で解く場合は [docs/vscode-kotlin.md](docs/vscode-kotlin.md) を参照
+（`code atcoder/<contest>/<task>` と問題フォルダ単位で開けば pom 不要で構文エラーが出る。
+ブレークポイントを使う時だけ `atcoder/solve/`）。
+
+`sync.sh` の主なオプション: `DRY_RUN=1`（確認のみ）/ `FORCE=1`（未着手も含む）/
+`COMMIT=1`（送り先で commit まで）。
 
 ## Kotlin 競プロの注意点
 
