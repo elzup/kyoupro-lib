@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ABC461 C — 変数管理トレース</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Hiragino Sans", -apple-system, sans-serif;
+    color: #111; margin: 0; padding: 20px; font-size: 13px; line-height: 1.5;
+    background: #fafafa;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  .head { border-bottom: 2px solid #000; padding-bottom: 6px; margin-bottom: 4px;
+          display: flex; align-items: baseline; gap: 10px; }
+  .head h1 { font-size: 18px; margin: 0; }
+  .head .tag { font-size: 11px; color: #555; }
+  .head .goal { margin-left: auto; font-family: ui-monospace, Menlo, monospace;
+                font-size: 12px; border: 1px solid #000; padding: 1px 7px; }
+  .lead { font-size: 12px; color: #333; margin: 8px 0 18px; }
+
+  .stage { background: #fff; border: 1px solid #ccc; border-left: 3px solid #000;
+           border-radius: 3px; padding: 10px 12px; margin-bottom: 6px; }
+  .stage .st { font-family: ui-monospace, Menlo, monospace; font-weight: 700;
+               font-size: 11px; letter-spacing: .5px; color: #000; margin-bottom: 7px; }
+  .stage .st .n { background: #000; color: #fff; padding: 0 6px; margin-right: 7px; }
+  .stage .note { font-size: 11px; color: #666; margin-top: 6px; }
+
+  .arrow { text-align: center; color: #999; font-size: 14px; margin: 1px 0; }
+
+  /* 容器（変数）と宝石 */
+  .vars { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; }
+  .box { border: 1px dashed #999; border-radius: 4px; padding: 6px 8px 8px; min-width: 64px; }
+  .box.solid { border-style: solid; border-color: #000; }
+  .box .lbl { font-family: ui-monospace, Menlo, monospace; font-size: 10px;
+              color: #444; margin-bottom: 5px; white-space: nowrap; }
+  .row { display: flex; flex-wrap: wrap; gap: 4px; }
+
+  .gem { display: inline-flex; align-items: center; justify-content: center;
+         font-family: ui-monospace, Menlo, monospace; font-size: 12px; font-weight: 700;
+         border: 1.5px solid; border-radius: 4px; padding: 3px 7px; min-width: 30px; }
+  .gem .c { font-size: 8px; font-weight: 400; opacity: .7; margin-left: 3px; }
+  /* 3 つの色 = 宝石の色 */
+  .c1 { background: #e8f0fe; border-color: #1a73e8; color: #134a9e; }
+  .c2 { background: #fef3e0; border-color: #f59e0b; color: #92600a; }
+  .c3 { background: #e7f6ec; border-color: #2e9e54; color: #1c6b39; }
+  .gem.taken { box-shadow: 0 0 0 2px #000; }
+  .gem.dim { opacity: .35; }
+
+  .sum { font-family: ui-monospace, Menlo, monospace; font-weight: 700; font-size: 13px;
+         border: 1.5px solid #000; background: #000; color: #fff; border-radius: 4px;
+         padding: 4px 10px; display: inline-block; }
+  .legend { font-size: 11px; color: #555; margin-top: 16px; display: flex; gap: 14px; flex-wrap: wrap; }
+  .legend .gem { font-size: 10px; padding: 1px 5px; }
+  .why { background: #fff; border: 1px solid #ccc; border-radius: 3px; padding: 10px 12px;
+         margin-top: 14px; font-size: 12px; }
+  .why b { font-size: 12px; }
+  .why ul { margin: 6px 0 0; padding-left: 18px; }
+  .why li { margin: 3px 0; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="head">
+    <h1>ABC461 C — 変数管理トレース</h1>
+    <span class="tag">どの変数が今“何を持っているか”を追う</span>
+    <span class="goal">入力 5 3 2 / K=3 M=2</span>
+  </div>
+  <div class="lead">
+    宝石＝色付きの箱（数字＝価値、右下＝色）。容器（<code>byColor</code> / <code>t</code> / <code>q</code> / <code>sum</code>）の間を
+    宝石が移っていく様子を 1 ステップずつ。<b>B/C で詰まる地点は「今この箱に何が入っているか」を見失うこと</b>。
+  </div>
+
+  <!-- 0 入力 -->
+  <div class="stage">
+    <div class="st"><span class="n">0</span>入力 — 5 個の宝石。ここから 3 個選ぶ（色は 2 種類以上）</div>
+    <div class="vars">
+      <div class="box solid"><div class="lbl">gems[]</div><div class="row">
+        <span class="gem c1">30<span class="c">c1</span></span>
+        <span class="gem c1">40<span class="c">c1</span></span>
+        <span class="gem c1">50<span class="c">c1</span></span>
+        <span class="gem c2">10<span class="c">c2</span></span>
+        <span class="gem c3">20<span class="c">c3</span></span>
+      </div></div>
+    </div>
+  </div>
+  <div class="arrow">▼ 色ごとに振り分け</div>
+
+  <!-- 1 byColor -->
+  <div class="stage">
+    <div class="st"><span class="n">1</span>色ごとに分ける → <code>byColor</code></div>
+    <div class="vars">
+      <div class="box"><div class="lbl">byColor[0] = c1</div><div class="row">
+        <span class="gem c1">30</span><span class="gem c1">40</span><span class="gem c1">50</span></div></div>
+      <div class="box"><div class="lbl">byColor[1] = c2</div><div class="row">
+        <span class="gem c2">10</span></div></div>
+      <div class="box"><div class="lbl">byColor[2] = c3</div><div class="row">
+        <span class="gem c3">20</span></div></div>
+    </div>
+  </div>
+  <div class="arrow">▼ 各バケツを降順ソート</div>
+
+  <!-- 2 sort -->
+  <div class="stage">
+    <div class="st"><span class="n">2</span>各バケツを降順ソート（先頭＝その色の最大）</div>
+    <div class="vars">
+      <div class="box"><div class="lbl">byColor[0]</div><div class="row">
+        <span class="gem c1">50</span><span class="gem c1">40</span><span class="gem c1">30</span></div></div>
+      <div class="box"><div class="lbl">byColor[1]</div><div class="row">
+        <span class="gem c2">10</span></div></div>
+      <div class="box"><div class="lbl">byColor[2]</div><div class="row">
+        <span class="gem c3">20</span></div></div>
+    </div>
+  </div>
+  <div class="arrow">▼ 先頭（最大）を 1 つずつ取り出す</div>
+
+  <!-- 3 split into t / q -->
+  <div class="stage">
+    <div class="st"><span class="n">3</span>代表（各色の最大）を <code>t</code> へ、残りを <code>q</code> へ</div>
+    <div class="vars">
+      <div class="box solid"><div class="lbl">t = 代表（色を確保する候補）</div><div class="row">
+        <span class="gem c1">50</span><span class="gem c2">10</span><span class="gem c3">20</span></div></div>
+      <div class="box solid"><div class="lbl">q = 残り（2 番目以降）</div><div class="row">
+        <span class="gem c1">40</span><span class="gem c1">30</span></div></div>
+    </div>
+    <div class="note">代表は「色を 1 種類確保するために一番得な 1 個」。同じ色なら大きい方を代表にするのが常に有利。</div>
+  </div>
+  <div class="arrow">▼ t から大きい順に M=2 個（色を確保）</div>
+
+  <!-- 4 take M from t -->
+  <div class="stage">
+    <div class="st"><span class="n">4</span><code>t</code> から大きい順に M=2 個を確定 → <code>sum</code></div>
+    <div class="vars">
+      <div class="box"><div class="lbl">t（poll 後に残るのは 10）</div><div class="row">
+        <span class="gem c1 taken">50</span><span class="gem c3 taken">20</span><span class="gem c2">10</span></div></div>
+      <div class="sum">sum = 50 + 20 = 70</div>
+    </div>
+    <div class="note">枠が太い 2 個が確定。これで色 c1・c3 の 2 種類を確保（M=2 達成）。代表 10(c2) は余る。</div>
+  </div>
+  <div class="arrow">▼ 余った代表 10 を q に合流</div>
+
+  <!-- 5 merge -->
+  <div class="stage">
+    <div class="st"><span class="n">5</span>使わなかった代表を <code>q</code> に戻す（捨てない！）</div>
+    <div class="vars">
+      <div class="box solid"><div class="lbl">q = 残り ＋ 余った代表</div><div class="row">
+        <span class="gem c1">40</span><span class="gem c1">30</span><span class="gem c2">10</span></div></div>
+    </div>
+    <div class="note">ここを忘れると 10(c2) が候補から消えるバグ。「色は足りたので、あとは純粋に大きい順」。</div>
+  </div>
+  <div class="arrow">▼ q から大きい順に K−M=1 個</div>
+
+  <!-- 6 take K-M from q -->
+  <div class="stage">
+    <div class="st"><span class="n">6</span><code>q</code> から大きい順に K−M=1 個 → <code>sum</code></div>
+    <div class="vars">
+      <div class="box"><div class="lbl">q（poll 後 30,10 が残る）</div><div class="row">
+        <span class="gem c1 taken">40</span><span class="gem c1 dim">30</span><span class="gem c2 dim">10</span></div></div>
+      <div class="sum">sum = 70 + 40 = 110</div>
+    </div>
+    <div class="note">残り 1 枠は色を問わないので最大の 40(c1) を取る。選んだ宝石は 50,20,40 → 色 {c1,c3} で 2 種類 ✓</div>
+  </div>
+
+  <div class="legend">
+    <span><span class="gem c1">c1</span> 色1（青）</span>
+    <span><span class="gem c2">c2</span> 色2（橙）</span>
+    <span><span class="gem c3">c3</span> 色3（緑）</span>
+    <span>太枠＝確定 / 薄字＝取らずに残った</span>
+  </div>
+
+  <div class="why">
+    <b>この図で学生に意識させたいこと</b>
+    <ul>
+      <li><b>各変数の「役割」</b>：<code>t</code>＝色を確保する代表、<code>q</code>＝価値で勝負する残り。名前と中身が結びつくか。</li>
+      <li><b>容器の中身は時間で変わる</b>：同じ <code>q</code> でもステップ 3 と 5 で中身が違う。「今どの時点の q か」を追えるか。</li>
+      <li><b>移動＝コード 1 行</b>：箱から箱への矢印が <code>add</code> / <code>poll</code> / <code>addAll</code> に 1:1 対応。</li>
+    </ul>
+  </div>
+
+</div>
+</body>
+</html>
