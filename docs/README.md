@@ -11,13 +11,14 @@
 | [solving-flow.md](./solving-flow.md) | **解法フロー**。問題理解→設計→実装→修正→AC の各フェーズと、それを貫く本質スキル（Level 1〜5） |
 
 ## 例題（1 問を深掘りする教材）
-「解法は思いついた → コードにできるか」を 1 問で訓練するセット。
+「イメージはできた → コードにできるか」（イメージ→コード）を 1 問で訓練するセット。
 
 | doc | 内容 |
 | --- | --- |
 | [examples/abc461-c-variety.md](./examples/abc461-c-variety.md) | ABC461 C の実装トレーニング講義（Kotlin）＋要素分解ドリル |
 | [examples/abc461-c-variable-trace.html](./examples/abc461-c-variable-trace.html) | 変数管理トレース図。宝石が容器（byColor / t / q / sum）を移る様子を可視化 |
 | [examples/abc461-c-skeletons.md](./examples/abc461-c-skeletons.md) | 多言語（Java / Python / C++）の穴埋め雛形＋工程ごとの解答 |
+| [examples/abc462-d-thinking.md](./examples/abc462-d-thinking.md) | ABC462 D の設計フェーズ生思考ログ。寄り道込みの解き筋を solving-flow のフェーズ／本質スキルに対応づけ |
 
 ## リファレンス
 手が止まったときに引く逆引き・早見表。
@@ -32,5 +33,5 @@
 | doc | 内容 |
 | --- | --- |
 | [vscode-kotlin.md](./vscode-kotlin.md) | VSCode で Kotlin（AtCoder）をデバッグする手順 |
-| [web/README.md](./web/README.md) | 印刷用 早見表（4 言語）の生成 |
+| [web/README.md](./web/README.md) | 印刷用 早見表（4 言語）の生成。アルゴリズム / 入力テンプレ / 配列・標準ライブラリ の 3 種 |
 | [samples/](./samples/) | 早見表のデザイン案（A/B/C） |
