@@ -7,6 +7,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { snippets, LANGS } from './snippets.mjs'
 import { ioPatterns } from './io.mjs'
+import { arrayPatterns } from './array.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const distDir = join(here, 'dist')
@@ -19,7 +20,7 @@ const DEFAULT_THEME = 'category' // dist/ に採用するテーマ
 const CAT_LABEL = {
   ds: 'データ構造', graph: 'グラフ', math: '数学', search: '探索',
   util: 'ユーティリティ', dp: '動的計画法', string: '文字列', geometry: '幾何',
-  io: '入力',
+  io: '入力', arr: '配列',
 }
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -90,6 +91,7 @@ const CAT_COLOR = {
   string: ['#e0e7ff', '#4338ca', '#4f46e5'],
   geometry: ['#fee2e2', '#b91c1c', '#dc2626'],
   io: ['#ccfbf1', '#0f766e', '#14b8a6'],
+  arr: ['#fef9c3', '#a16207', '#ca8a04'],
 }
 const catColorCss = Object.entries(CAT_COLOR)
   .map(([k, [bg, fg, line]]) =>
@@ -161,6 +163,20 @@ const renderIoBlock = (p, langId) => {
 </section>`
 }
 
+const renderArrBlock = (p, langId) => {
+  const code = hlComments(esc(p.code[langId]), langId)
+  const state = p.state ? `<pre class="dia">${esc(p.state)}</pre>` : ''
+  return `<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">${esc(p.group ?? '配列')}</span>
+    <span class="title">${esc(p.title)}</span>
+    <span class="sub">${esc(p.sub)}</span>
+  </div>
+  <p class="lead">${esc(p.note)}</p>
+  ${state}<pre class="code">${code}</pre>
+</section>`
+}
+
 const shell = (title, h1, lang, note, legend, blocks, themeId) => `<!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -206,10 +222,22 @@ const ioPage = (lang, themeId) =>
     themeId
   )
 
-// dist: 全言語 × デフォルトテーマ (アルゴリズム早見 + 入力テンプレの 2 ページ)
+const arrPage = (lang, themeId) =>
+  shell(
+    `配列・標準ライブラリ — ${lang.label}`,
+    '配列・標準ライブラリ',
+    lang,
+    `${arrayPatterns.length} topics · 印刷対応 (A4)`,
+    '各項目は 中身の変化（図）→ コード の順。配列操作と予選で使う標準ライブラリ。',
+    arrayPatterns.map((p) => renderArrBlock(p, lang.id)).join('\n'),
+    themeId
+  )
+
+// dist: 全言語 × デフォルトテーマ (アルゴリズム早見 + 入力テンプレ + 配列の 3 ページ)
 for (const lang of LANGS) {
   writeFileSync(join(distDir, `${lang.id}.html`), page(lang, DEFAULT_THEME))
   writeFileSync(join(distDir, `io-${lang.id}.html`), ioPage(lang, DEFAULT_THEME))
+  writeFileSync(join(distDir, `arr-${lang.id}.html`), arrPage(lang, DEFAULT_THEME))
 }
 
 // samples: Python × 全テーマ (比較用)
@@ -221,6 +249,7 @@ for (const themeId of Object.keys(THEMES)) {
 // index
 const algoLinks = LANGS.map((l) => `<li><a href="${l.id}.html">${l.label}</a> — ${l.id}.html</li>`).join('\n')
 const ioLinks = LANGS.map((l) => `<li><a href="io-${l.id}.html">${l.label}</a> — io-${l.id}.html</li>`).join('\n')
+const arrLinks = LANGS.map((l) => `<li><a href="arr-${l.id}.html">${l.label}</a> — arr-${l.id}.html</li>`).join('\n')
 const index = `<!DOCTYPE html>
 <html lang="ja"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -254,6 +283,12 @@ ${algoLinks}
 <h2>入力テンプレ (${ioPatterns.length} patterns)</h2>
 <ul>
 ${ioLinks}
+</ul>
+</div>
+<div>
+<h2>配列・標準ライブラリ (${arrayPatterns.length} topics)</h2>
+<ul>
+${arrLinks}
 </ul>
 </div>
 </div>

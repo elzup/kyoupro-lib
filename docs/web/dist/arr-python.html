@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>配列・標準ライブラリ — Python</title>
+<style>
+@page { size: A4; margin: 9mm; }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { font-family:"Hiragino Sans","Noto Sans JP",-apple-system,sans-serif;
+       color:#000; margin:0; font-size:9px; line-height:1.35; }
+.mast { display:flex; align-items:baseline; gap:10px; padding-bottom:4px; margin-bottom:7px; }
+.mast h1 { font-size:16px; margin:0; }
+.mast .lang { font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospace; font-weight:700; font-size:11px; padding:1px 8px; }
+.mast .note { margin-left:auto; font-size:8px; color:#666; text-align:right; line-height:1.3; }
+.legend { font-size:8px; color:#555; margin:-3px 0 7px; }
+.cols { columns:2; column-gap:6mm; }
+.block { break-inside:avoid; margin-bottom:7px; padding-bottom:5px; }
+.bh { display:flex; align-items:baseline; gap:5px; flex-wrap:wrap; }
+.bh .cat { font-size:7px; letter-spacing:0.5px; padding:0 4px; border-radius:2px; }
+.bh .title { font-size:11px; font-weight:700; }
+.bh .sub { font-size:8px; color:#555; }
+.bh .cx { margin-left:auto; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospace; font-weight:700; font-size:8.5px;
+          padding:0 4px; white-space:nowrap; }
+.lead { font-size:8.6px; margin:3px 0 4px; }
+pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospace; }
+.dia { font-size:8.4px; line-height:1.28; padding:3px 6px; margin-bottom:4px;
+       white-space:pre; overflow:hidden; }
+.code { font-size:8px; line-height:1.32; padding:2px 0 2px 6px;
+        white-space:pre-wrap; overflow-wrap:anywhere; }  /* 長い行は折り返し(見切れ防止) */
+.code .cm { color:#999; }
+.pf { margin:4px 0 0; padding-left:13px; }
+.pf li { font-size:8.2px; margin:1px 0; }
+@media screen {
+  body { background:#999; padding:14px; }
+  .sheet { background:#fff; max-width:200mm; margin:0 auto; padding:9mm;
+           box-shadow:0 1px 6px rgba(0,0,0,.4); }
+}
+/* 若干のレスポンシブ: 狭い画面は 1 段組・少し拡大・コードは横スクロール (印刷は A4 2 段組のまま) */
+@media screen and (max-width:760px) {
+  body { background:#fff; padding:0; }
+  .sheet { max-width:none; box-shadow:none; padding:16px; font-size:11px; }
+  .cols { columns:1; column-rule:none; }
+  .dia, .code { overflow-x:auto; }
+  .mast .note { font-size:9px; }
+}
+
+.cols { column-rule:0.5px solid #ddd; }
+.block { border-bottom:0.5px solid #eee; }
+.mast { border-bottom:2px solid #111; }
+.mast .lang { background:#111; color:#fff; }
+.bh .cx { border:1px solid #888; }
+.dia { background:#fafafa; border-left:2px solid #ccc; }
+.code { border-left:2px solid #ccc; }
+.cat-ds .bh .cat{background:#ede9fe;color:#6d28d9} .cat-ds .code{border-left-color:#7c3aed}
+.cat-graph .bh .cat{background:#dbeafe;color:#1d4ed8} .cat-graph .code{border-left-color:#2563eb}
+.cat-math .bh .cat{background:#d1fae5;color:#047857} .cat-math .code{border-left-color:#059669}
+.cat-search .bh .cat{background:#ffedd5;color:#c2410c} .cat-search .code{border-left-color:#ea580c}
+.cat-util .bh .cat{background:#cffafe;color:#0e7490} .cat-util .code{border-left-color:#0891b2}
+.cat-dp .bh .cat{background:#fce7f3;color:#be185d} .cat-dp .code{border-left-color:#db2777}
+.cat-string .bh .cat{background:#e0e7ff;color:#4338ca} .cat-string .code{border-left-color:#4f46e5}
+.cat-geometry .bh .cat{background:#fee2e2;color:#b91c1c} .cat-geometry .code{border-left-color:#dc2626}
+.cat-io .bh .cat{background:#ccfbf1;color:#0f766e} .cat-io .code{border-left-color:#14b8a6}
+.cat-arr .bh .cat{background:#fef9c3;color:#a16207} .cat-arr .code{border-left-color:#ca8a04}</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="mast">
+    <h1>配列・標準ライブラリ</h1>
+    <span class="lang">Python</span>
+    <span class="note">20 topics · 印刷対応 (A4)</span>
+  </div>
+  <div class="legend">各項目は 中身の変化（図）→ コード の順。配列操作と予選で使う標準ライブラリ。</div>
+  <div class="cols">
+<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">生成</span>
+    <span class="title">生成・初期化</span>
+    <span class="sub">1D / 2D / 値埋め</span>
+  </div>
+  <p class="lead">長さ N の 0 埋め・値埋め、2 次元配列、可変リスト。</p>
+  <pre class="dia">IntArray(5)        → [0, 0, 0, 0, 0]
+fill(-1)           → [-1,-1,-1,-1,-1]
+2D h×w             → [[0,0,0], [0,0,0]]</pre><pre class="code">a = [0] * n                         <span class="cm"># 0 埋め</span>
+b = [-1] * n                        <span class="cm"># -1 埋め</span>
+g = [[0] * w for _ in range(h)]     <span class="cm"># 2次元 (× [[0]*w]*h は参照共有でバグ)</span>
+lst = []                            <span class="cm"># 可変リスト</span></pre>
+</section>
+<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">走査</span>
+    <span class="title">走査（添字つき）</span>
+    <span class="sub">値 / 添字 / 両方</span>
+  </div>
+  <p class="lead">値だけ / 添字だけ / 添字と値の両方を回す 3 パターン。</p>
+  <pre class="dia">[10,20,30] → i=0:10  i=1:20  i=2:30</pre><pre class="code">for x in a: ...                     <span class="cm"># 値</span>
+for i in range(len(a)): ...         <span class="cm"># 添字</span>
+for i, x in enumerate(a): ...       <span class="cm"># 両方</span></pre>
+</section>
+<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">編集</span>
+    <span class="title">追加・取り出し（末尾/先頭）</span>
+    <span class="sub">push/pop/shift/unshift</span>
+  </div>
+  <p class="lead">末尾の add/pop は O(1)。先頭の挿入/削除は配列だと O(N)、多用するなら Deque。</p>
+  <pre class="dia">[1,2] +3(末尾) → [1,2,3]   pop → 3, 残 [1,2]
+[1,2] 先頭0     → [0,1,2]   shift → 0, 残 [1,2]</pre><pre class="code">a = [1, 2]
+a.append(3)                         <span class="cm"># 末尾追加 (push)</span>
+last = a.pop()                      <span class="cm"># 末尾取り出し (pop)</span>
+a.insert(0, 0)                      <span class="cm"># 先頭挿入 (unshift, O(N))</span>
+first = a.pop(0)                    <span class="cm"># 先頭取り出し (shift, O(N)) → deque 推奨</span></pre>
+</section>
+<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">編集</span>
+    <span class="title">連結・マージ</span>
+    <span class="sub">concat / merge</span>
+  </div>
+  <p class="lead">2 つの列をつなぐ。両方ソート済みなら merge で O(N) に整列したまま結合。</p>
+  <pre class="dia">[1,2] ++ [3,4] → [1,2,3,4]
+ソート済 [1,3] と [2,4] を merge → [1,2,3,4]</pre><pre class="code">c = a + b                           <span class="cm"># 連結</span>
+import heapq
+m = list(heapq.merge(a, b))         <span class="cm"># ソート済 2 列を O(N) マージ</span></pre>
+</section>
+<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">編集</span>
+    <span class="title">重複除去</span>
+    <span class="sub">distinct / unique</span>
+  </div>
+  <p class="lead">順序を保つ重複除去と、ソートして潰す方法。</p>
+  <pre class="dia">[1,1,2,3,3] → [1,2,3]</pre><pre class="code">u = list(dict.fromkeys(a))          <span class="cm"># 順序保持</span>
+us = sorted(set(a))                 <span class="cm"># ソート + 重複排除</span></pre>
+</section>
+<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">探索</span>
+    <span class="title">含む・位置</span>
+    <span class="sub">contains / indexOf</span>
+  </div>
+  <p class="lead">存在判定と添字。配列の contains は O(N)（多用なら Set 化で O(1)）。</p>
+  <pre class="dia">[5,3,9] 3を含む? → true   9の位置 → 2</pre><pre class="code">has = 3 in a                        <span class="cm"># O(N) (集合化で O(1))</span>
+idx = a.index(9) if 9 in a else -1  <span class="cm"># index は無いと例外</span></pre>
+</section>
+<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">集計</span>
+    <span class="title">合計・最大・最小</span>
+    <span class="sub">sum / max / min</span>
+  </div>
+  <p class="lead">合計はオーバーフローに注意（Long で受ける）。空配列の max/min は例外。</p>
+  <pre class="dia">[3,1,2] → sum=6  max=3  min=1</pre><pre class="code">s = sum(a)
+mx = max(a); mn = min(a)            <span class="cm"># 空はエラー → max(a, default=0)</span></pre>
+</section>
+<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">集計</span>
+    <span class="title">条件カウント・抽出</span>
+    <span class="sub">count / filter</span>
+  </div>
+  <p class="lead">条件を満たす個数を数える / 満たす要素だけ取り出す。</p>
+  <pre class="dia">[1,2,3,4] → even を抽出 → [2,4]  cnt=2</pre><pre class="code">cnt = sum(1 for x in a if x % 2 == 0)
+evens = [x for x in a if x % 2 == 0]</pre>
+</section>
+<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">変換</span>
+    <span class="title">変換（map）</span>
+    <span class="sub">各要素を加工</span>
+  </div>
+  <p class="lead">各要素に同じ加工をして新しい列を作る。</p>
+  <pre class="dia">[1,2,3] → ×2 → [2,4,6]</pre><pre class="code">b = [x * 2 for x in a]</pre>
+</section>
+<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">整列</span>
+    <span class="title">ソート（昇順・降順・キー）</span>
+    <span class="sub">sort / desc / key</span>
+  </div>
+  <p class="lead">破壊的か非破壊か、降順、キー指定（複数キー）を押さえる。</p>
+  <pre class="dia">[3,1,2] → 昇順 [1,2,3] / 降順 [3,2,1]</pre><pre class="code">a.sort()                            <span class="cm"># 破壊的・昇順</span>
+asc = sorted(a)                     <span class="cm"># 非破壊</span>
+desc = sorted(a, reverse=True)
+pairs.sort(key=lambda p: p[1])      <span class="cm"># キー指定</span></pre>
+</section>
+<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">整列</span>
+    <span class="title">反転・回転・スライス</span>
+    <span class="sub">reverse / slice</span>
+  </div>
+  <p class="lead">反転、部分列の切り出し（半開区間 [l, r)）、左 k 回転。</p>
+  <pre class="dia">[1,2,3,4] → 反転 [4,3,2,1] / [1,3) = [2,3]</pre><pre class="code">r = a[::-1]                         <span class="cm"># 反転</span>
+sub = a[1:3]                        <span class="cm"># [1,3)</span>
+rot = a[k:] + a[:k]                 <span class="cm"># 左 k 回転</span></pre>
+</section>
+<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">探索</span>
+    <span class="title">最大の位置（argmax）</span>
+    <span class="sub">値でなく添字</span>
+  </div>
+  <p class="lead">「最大値そのもの」でなく「最大の添字」が欲しいとき。</p>
+  <pre class="dia">[3,9,1] → maxIdx = 1 (値 9)</pre><pre class="code">idx = max(range(len(a)), key=lambda i: a[i])</pre>
+</section>
+<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">集計</span>
+    <span class="title">累積和</span>
+    <span class="sub">区間和を O(1)</span>
+  </div>
+  <p class="lead">前計算 O(N)、以後どの区間和も O(1)。pre は長さ N+1、半開区間で引く。</p>
+  <pre class="dia">a=[1,2,3] → pre=[0,1,3,6]
+sum[l,r) = pre[r] - pre[l]</pre><pre class="code">from itertools import accumulate
+pre = [0] + list(accumulate(a))
+s = pre[r] - pre[l]                 <span class="cm"># [l, r)</span></pre>
+</section>
+<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">変換</span>
+    <span class="title">2次元・転置</span>
+    <span class="sub">行列の行↔列</span>
+  </div>
+  <p class="lead">h×w を w×h に。grid[i][j] → t[j][i]。</p>
+  <pre class="dia">[[1,2,3],
+ [4,5,6]]  →  [[1,4],
+              [2,5],
+              [3,6]]</pre><pre class="code">t = [list(row) for row in zip(*g)]      <span class="cm"># 転置の定番</span></pre>
+</section>
+<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">コレクション</span>
+    <span class="title">優先度付きキュー</span>
+    <span class="sub">最小 / 最大ヒープ</span>
+  </div>
+  <p class="lead">Dijkstra・貪欲で頻出。「常に最小（or 最大）を取り出す」袋。</p>
+  <pre class="dia">push 3,1,2 → poll → 1,2,3  (最小ヒープ)
+add/poll は O(log N)</pre><pre class="code">import heapq
+pq = []
+heapq.heappush(pq, 3)               <span class="cm"># 最小ヒープのみ</span>
+x = heapq.heappop(pq)
+<span class="cm"># 最大は符号反転: heappush(pq, -v); -heappop(pq)</span></pre>
+</section>
+<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">コレクション</span>
+    <span class="title">Deque / Queue / Stack</span>
+    <span class="sub">両端 push/pop</span>
+  </div>
+  <p class="lead">両端から出し入れできる。Queue は BFS、Stack は DFS に使う。</p>
+  <pre class="dia">BFS=Queue(先入れ先出し) / DFS=Stack(後入れ先出し)
+front [ . . . ] back</pre><pre class="code">from collections import deque
+dq = deque()
+dq.append(1); dq.appendleft(0)
+f = dq.popleft(); l = dq.pop()</pre>
+</section>
+<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">コレクション</span>
+    <span class="title">Set（重複排除・存在判定）</span>
+    <span class="sub">contains O(1)</span>
+  </div>
+  <p class="lead">重複を消す / 含まれるかを高速判定。順序つきが要るなら Tree/std::set。</p>
+  <pre class="dia">[1,1,2,3] → {1,2,3}  (3 in set? → true)</pre><pre class="code">s = set(a)
+if 3 in s: ...</pre>
+</section>
+<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">コレクション</span>
+    <span class="title">Map（頻度カウント）</span>
+    <span class="sub">値 → 個数</span>
+  </div>
+  <p class="lead">出現回数の数え上げが定番。無いキーの既定 0 の扱いが言語差。</p>
+  <pre class="dia">[a,b,a] → {a:2, b:1}</pre><pre class="code">from collections import Counter
+cnt = Counter(a)                    <span class="cm"># {値: 個数}</span>
+c = cnt[x]                          <span class="cm"># 無ければ 0</span></pre>
+</section>
+<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">探索</span>
+    <span class="title">二分探索（挿入位置）</span>
+    <span class="sub">lower / upper bound</span>
+  </div>
+  <p class="lead">ソート済み配列で「x 以上が始まる位置」。x の個数 = upper - lower。</p>
+  <pre class="dia">sorted=[1,3,5,7]  x=5
+lower=2 (5以上の先頭) / upper=3 (5より大の先頭)</pre><pre class="code">import bisect
+lo = bisect.bisect_left(a, x)       <span class="cm"># x 以上の先頭 (lower_bound)</span>
+hi = bisect.bisect_right(a, x)      <span class="cm"># x より大の先頭 (upper_bound)</span></pre>
+</section>
+<section class="block cat-arr">
+  <div class="bh">
+    <span class="cat">文字列</span>
+    <span class="title">文字列 ⇄ 配列</span>
+    <span class="sub">split / join</span>
+  </div>
+  <p class="lead">空白区切りで分解、配列を連結、文字単位の配列化。</p>
+  <pre class="dia">"a b c" → split → [a, b, c]
+[a, b, c] → join(" ") → "a b c"</pre><pre class="code">parts = s.split()                   <span class="cm"># 空白で分解</span>
+nums = list(map(int, s.split()))
+joined = " ".join(map(str, lst))
+chars = list(s)</pre>
+</section>
+  </div>
+</div>
+</body>
+</html>
