@@ -364,15 +364,15 @@ def grid_bfs(grid, sy, sx):
     id: 'binary_search',
     cat: 'search',
     title: '二分探索',
-    sub: 'めぐる式 / lower・upper bound',
+    sub: 'めぐる式 / lower・upper / 標準',
     cx: 'O(log N)',
-    lead: '答えの単調性(F..FT..T)で二分。ok=満たす側, ng=満たさない側の初期値を渡す。',
+    lead: '答えの単調性(F..FT..T)で二分。ok=満たす側, ng=満たさない側の初期値を渡す。ソート済み配列の値探索は各言語の標準(下記)。',
     diagram: `pred 単調:  F F F T T T
             ng ──┬── ok   m=(ok+ng)/2
 lowerBound: a[i] >= x の最小 i
 upperBound: a[i] >  x の最小 i
 [1 3 3 5 7] x=3 → lower=1 upper=3 個数=2`,
-    pitfalls: ['ok/ng の向きを取り違えない(満たす側が ok)', 'mid の溢れ: (lo+hi)/2 より lo+(hi-lo)/2 が安全', '値が無い場合の lowerBound は size を返す'],
+    pitfalls: ['ok/ng の向きを取り違えない(満たす側が ok)', 'mid の溢れ: (lo+hi)/2 より lo+(hi-lo)/2 が安全', '値が無い場合の lowerBound は size を返す', '標準 binarySearch(Java/Kotlin) は重複時にどの添字かを保証しない → lower/upper は自前', '標準 (bisect / lower_bound / binarySearch) は事前ソート必須'],
     code: {
       kotlin: `// pred(ok)=true, pred(ng)=false となる初期値を渡す
 fun bisect(okInit: Long, ngInit: Long, pred: (Long) -> Boolean): Long {
@@ -392,7 +392,11 @@ fun upperBound(a: LongArray, x: Long): Int {   // a[i] > x の最小 i
   var lo = -1; var hi = a.size
   while (hi - lo > 1) { val m = (lo + hi) / 2; if (a[m] > x) hi = m else lo = m }
   return hi
-}`,
+}
+// 有無/挿入位置なら標準 (要ソート済):
+//   val i = java.util.Arrays.binarySearch(a, x)  // 無ければ -(挿入点)-1
+//   val ins = if (i < 0) -i - 1 else i           // List は list.binarySearch(x)
+//   ※ LongArray に stdlib の binarySearch 拡張は無い。重複時の lower/upper も非保証`,
       python: `# pred(ok)=True, pred(ng)=False となる初期値を渡す
 def bisect_meguru(ok, ng, pred):
     while abs(ok - ng) > 1:
@@ -423,7 +427,12 @@ static int upperBound(long[] a, long x) {   // a[i] > x の最小 i
   int lo = -1, hi = a.length;
   while (hi - lo > 1) { int m = (lo + hi) >>> 1; if (a[m] > x) hi = m; else lo = m; }
   return hi;
-}`,
+}
+// 有無/挿入位置なら標準が速い (要ソート済):
+//   int i = Arrays.binarySearch(a, x);        // 見つかれば添字, 無ければ -(挿入点)-1
+//   int ins = i < 0 ? -i - 1 : i;             // 挿入位置(=distinct なら lowerBound)
+//   List は Collections.binarySearch(list, x)
+//   ※ 重複時にどの添字かは非保証 → 個数を数えるなら上の lower/upperBound`,
       cpp: `// pred(ok)=true, pred(ng)=false となる初期値を渡す
 template <class F>
 ll bisect(ll ok, ll ng, F pred) {
@@ -664,7 +673,8 @@ lcm = a / gcd · b    (先に割る)
 extGcd: ax + by = gcd の x,y も返す`,
     pitfalls: ['lcm は a*b が溢れる → a/gcd*b の順', '負数の gcd 符号に注意(必要なら abs)'],
     code: {
-      kotlin: `tailrec fun gcd(a: Long, b: Long): Long = if (b == 0L) a else gcd(b, a % b)
+      kotlin: `// Kotlin/Java は primitive の gcd 標準が無いので手書き互除法が定番
+tailrec fun gcd(a: Long, b: Long): Long = if (b == 0L) a else gcd(b, a % b)
 fun lcm(a: Long, b: Long): Long = a / gcd(a, b) * b
 // ax + by = gcd(a,b) の (g, x, y)
 fun extGcd(a: Long, b: Long): Triple<Long, Long, Long> {
@@ -680,7 +690,8 @@ def ext_gcd(a, b):                  # ax+by=gcd の (g, x, y)
         return a, 1, 0
     g, x, y = ext_gcd(b, a % b)
     return g, y, x - (a // b) * y`,
-      java: `static long gcd(long a, long b) { return b == 0 ? a : gcd(b, a % b); }
+      java: `// Java は long の gcd 標準が無い(BigInteger.gcd は遅い)。手書き互除法が定番
+static long gcd(long a, long b) { return b == 0 ? a : gcd(b, a % b); }
 static long lcm(long a, long b) { return a / gcd(a, b) * b; }
 // ax + by = gcd; 返り値 {g, x, y}
 static long[] extGcd(long a, long b) {
@@ -689,7 +700,7 @@ static long[] extGcd(long a, long b) {
   return new long[]{r[0], r[2], r[1] - (a / b) * r[2]};
 }`,
       cpp: `ll gcdll(ll a, ll b) { return b == 0 ? a : gcdll(b, a % b); }   // C++17 は std::gcd
-ll lcmll(ll a, ll b) { return a / gcdll(a, b) * b; }
+ll lcmll(ll a, ll b) { return a / gcdll(a, b) * b; }            // C++17 は std::lcm(<numeric>)
 // ax + by = gcd を返し、x,y を参照で受け取る
 ll ext_gcd(ll a, ll b, ll& x, ll& y) {
   if (b == 0) { x = 1; y = 0; return a; }
@@ -1287,9 +1298,10 @@ ll count_at_least(vector<ll>& a, ll k) {
  for mask: for i: if (mask>>i & 1) use i
 順列: 末尾から増加位置を探し交換→反転
  012 021 102 120 201 210  (n! 通り)`,
-    pitfalls: ['next permutation は最初にソートしてから', '1 shl n は n が大きいと Int 溢れ(Long に)'],
+    pitfalls: ['next permutation は最初にソートしてから', '1 shl n は n が大きいと Int 溢れ(Long に)', '選んだ個数は自前で数えず popcount 系標準で(各言語コード参照)'],
     code: {
       kotlin: `// bit 全探索: for (mask in 0 until (1 shl n)) { (mask shr i and 1) ... }
+// 立ちビット数(選んだ個数)は mask.countOneBits() (1.5+) / Integer.bitCount(mask)
 // 辞書順で次の順列に in-place。なければ false。do{}while で全列挙
 fun nextPermutation(a: IntArray): Boolean {
   var i = a.size - 2
@@ -1303,6 +1315,7 @@ fun nextPermutation(a: IntArray): Boolean {
   return true
 }`,
       python: `# bit 全探索: for mask in range(1 << n): [i for i in range(n) if mask >> i & 1]
+# 立ちビット数は bin(mask).count("1") (3.10+ は mask.bit_count())
 # 順列は標準が簡単:  from itertools import permutations
 #   for p in permutations(range(n)): ...   # n! 通り
 def next_permutation(a):
@@ -1319,6 +1332,7 @@ def next_permutation(a):
     a[i + 1:] = a[i + 1:][::-1]
     return True`,
       java: `// bit 全探索: for (int mask = 0; mask < (1<<n); mask++) { (mask>>i & 1) ... }
+// 立ちビット数は Integer.bitCount(mask) / Long.bitCount(mask)
 // 辞書順で次の順列に in-place。なければ false
 static boolean nextPermutation(int[] a) {
   int i = a.length - 2;
@@ -1333,6 +1347,7 @@ static boolean nextPermutation(int[] a) {
   return true;
 }`,
       cpp: `// bit 全探索: for (int mask = 0; mask < (1<<n); mask++) { (mask>>i & 1) ... }
+// 立ちビット数は __builtin_popcount(mask) / __builtin_popcountll (C++20 は std::popcount)
 // 順列は標準が使える: sort 後 do{}while(next_permutation(a.begin(), a.end()))
 // 自前が要るとき(std と名前を分けて):
 bool next_perm(vector<int>& a) {
@@ -1521,7 +1536,8 @@ fun isPrime(n: Long): Boolean {
   var d = 2L; while (d * d <= n) { if (n % d == 0L) return false; d++ }
   return true
 }`,
-      python: `def factorize(n):                         # {素因数: 指数} O(√N)
+      python: `from math import isqrt              # √N の上限は isqrt(n) でも可(3.8+, 誤差なし)
+def factorize(n):                         # {素因数: 指数} O(√N)
     res = {}
     v, p = n, 2
     while p * p <= v:

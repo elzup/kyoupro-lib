@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>区間処理 — C++</title>
+<style>
+@page { size: A4; margin: 9mm; }
+* { box-sizing: border-box; }
+html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { font-family:"Hiragino Sans","Noto Sans JP",-apple-system,sans-serif;
+       color:#000; margin:0; font-size:9px; line-height:1.35; }
+.mast { display:flex; align-items:baseline; gap:10px; padding-bottom:4px; margin-bottom:7px; }
+.mast h1 { font-size:16px; margin:0; }
+.mast .lang { font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospace; font-weight:700; font-size:11px; padding:1px 8px; }
+.mast .note { margin-left:auto; font-size:8px; color:#666; text-align:right; line-height:1.3; }
+.legend { font-size:8px; color:#555; margin:-3px 0 7px; }
+.cols { columns:2; column-gap:6mm; }
+.block { break-inside:avoid; margin-bottom:7px; padding-bottom:5px; }
+.bh { display:flex; align-items:baseline; gap:5px; flex-wrap:wrap; }
+.bh .cat { font-size:7px; letter-spacing:0.5px; padding:0 4px; border-radius:2px; }
+.bh .title { font-size:11px; font-weight:700; }
+.bh .sub { font-size:8px; color:#555; }
+.bh .cx { margin-left:auto; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospace; font-weight:700; font-size:8.5px;
+          padding:0 4px; white-space:nowrap; }
+.lead { font-size:8.6px; margin:3px 0 4px; }
+pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospace; }
+.dia { font-size:8.4px; line-height:1.28; padding:3px 6px; margin-bottom:4px;
+       white-space:pre; overflow:hidden; }
+.code { font-size:8px; line-height:1.32; padding:2px 0 2px 6px;
+        white-space:pre-wrap; overflow-wrap:anywhere; }  /* 長い行は折り返し(見切れ防止) */
+.code .cm { color:#999; }
+.pf { margin:4px 0 0; padding-left:13px; }
+.pf li { font-size:8.2px; margin:1px 0; }
+.omit { font-size:8px; color:#666; margin:3px 0 0; }
+.omit b { background:#fef9c3; color:#a16207; padding:0 3px; border-radius:2px; margin-right:3px; }
+@media screen {
+  body { background:#999; padding:14px; }
+  .sheet { background:#fff; max-width:200mm; margin:0 auto; padding:9mm;
+           box-shadow:0 1px 6px rgba(0,0,0,.4); }
+}
+/* 若干のレスポンシブ: 狭い画面は 1 段組・少し拡大・コードは横スクロール (印刷は A4 2 段組のまま) */
+@media screen and (max-width:760px) {
+  body { background:#fff; padding:0; }
+  .sheet { max-width:none; box-shadow:none; padding:16px; font-size:11px; }
+  .cols { columns:1; column-rule:none; }
+  .dia, .code { overflow-x:auto; }
+  .mast .note { font-size:9px; }
+}
+
+.cols { column-rule:0.5px solid #ddd; }
+.block { border-bottom:0.5px solid #eee; }
+.mast { border-bottom:2px solid #111; }
+.mast .lang { background:#111; color:#fff; }
+.bh .cx { border:1px solid #888; }
+.dia { background:#fafafa; border-left:2px solid #ccc; }
+.code { border-left:2px solid #ccc; }
+.cat-ds .bh .cat{background:#ede9fe;color:#6d28d9} .cat-ds .code{border-left-color:#7c3aed}
+.cat-graph .bh .cat{background:#dbeafe;color:#1d4ed8} .cat-graph .code{border-left-color:#2563eb}
+.cat-math .bh .cat{background:#d1fae5;color:#047857} .cat-math .code{border-left-color:#059669}
+.cat-search .bh .cat{background:#ffedd5;color:#c2410c} .cat-search .code{border-left-color:#ea580c}
+.cat-util .bh .cat{background:#cffafe;color:#0e7490} .cat-util .code{border-left-color:#0891b2}
+.cat-dp .bh .cat{background:#fce7f3;color:#be185d} .cat-dp .code{border-left-color:#db2777}
+.cat-string .bh .cat{background:#e0e7ff;color:#4338ca} .cat-string .code{border-left-color:#4f46e5}
+.cat-geometry .bh .cat{background:#fee2e2;color:#b91c1c} .cat-geometry .code{border-left-color:#dc2626}
+.cat-io .bh .cat{background:#ccfbf1;color:#0f766e} .cat-io .code{border-left-color:#14b8a6}
+.cat-arr .bh .cat{background:#fef9c3;color:#a16207} .cat-arr .code{border-left-color:#ca8a04}
+.cat-interval .bh .cat{background:#dcfce7;color:#166534} .cat-interval .code{border-left-color:#22c55e}</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="mast">
+    <h1>区間処理</h1>
+    <span class="lang">C++</span>
+    <span class="note">8 topics · 印刷対応 (A4)</span>
+  </div>
+  <div class="legend">半開区間 [l,r) に統一し、累積和・いもす・差分・二分探索の境界ミスを減らすための早見表。</div>
+  <div class="cols">
+<section class="block cat-interval">
+  <div class="bh">
+    <span class="cat">境界</span>
+    <span class="title">半開区間 [l, r)</span>
+    <span class="sub">長さ / 空 / 変換</span>
+  </div>
+  <p class="lead">区間は半開 [l, r) に統一すると、長さ・累積和・スライス・二分探索の境界が揃う。</p>
+  <pre class="dia">添字: 0 1 2 3 4
+[1,4) → 1 2 3      長さ = r-l = 3
+[2,2) → 空         端点一致は空区間
+1-index 閉区間 [L,R] → 0-index 半開 [L-1, R)</pre><pre class="code"><span class="cm">// 問題文: 1-indexed 閉区間 [L, R]</span>
+int l = L - 1;         <span class="cm">// 0-index</span>
+int r = R;             <span class="cm">// 半開 [l, r)</span>
+int len = r - l;
+for (int i = l; i &lt; r; i++) { /* a[i] */ }</pre>
+  <ul class="pf"><li>問題文が 1-indexed なら l=L-1, r=R に直す</li><li>閉区間 [l,r] を使うなら長さは r-l+1。混ぜない</li></ul>
+</section>
+<section class="block cat-interval">
+  <div class="bh">
+    <span class="cat">累積和</span>
+    <span class="title">1次元累積和</span>
+    <span class="sub">区間和 O(1)</span>
+  </div>
+  <p class="lead">pre は長さ N+1。pre[i] は a[0..i-1] の和。区間和は必ず pre[r] - pre[l]。</p>
+  <pre class="dia">a   = [1,2,3,4]
+pre = [0,1,3,6,10]
+sum [l,r) = pre[r] - pre[l]
+sum [1,3) = 6 - 1 = 5</pre><pre class="code">vector&lt;ll&gt; pre(n + 1, 0);
+for (int i = 0; i &lt; n; i++) pre[i + 1] = pre[i] + a[i];
+auto range_sum = [&amp;](int l, int r) { return pre[r] - pre[l]; }; <span class="cm">// [l,r)</span></pre>
+  <ul class="pf"><li>合計は Long / long / ll で持つ</li><li>閉区間 [L,R] は [L-1,R) にしてから引く</li></ul>
+</section>
+<section class="block cat-interval">
+  <div class="bh">
+    <span class="cat">累積和</span>
+    <span class="title">2次元累積和</span>
+    <span class="sub">長方形和 O(1)</span>
+  </div>
+  <p class="lead">2D も 1 個ずらして持つ。長方形の上・左を引き、重複して引いた左上を足す。</p>
+  <pre class="dia">sum y:[y1,y2), x:[x1,x2)
+ans = s[y2][x2] - s[y1][x2] - s[y2][x1] + s[y1][x1]
+s は (H+1)×(W+1)</pre><pre class="code">vector&lt;vector&lt;ll&gt;&gt; s(h + 1, vector&lt;ll&gt;(w + 1, 0));
+for (int y = 0; y &lt; h; y++) for (int x = 0; x &lt; w; x++)
+  s[y+1][x+1] = s[y+1][x] + s[y][x+1] - s[y][x] + a[y][x];
+auto rect = [&amp;](int y1, int x1, int y2, int x2) {
+  return s[y2][x2] - s[y1][x2] - s[y2][x1] + s[y1][x1];
+};</pre>
+  <ul class="pf"><li>y/x の順を固定する。grid[y][x] に合わせる</li><li>右下 y2,x2 は含まない</li></ul>
+</section>
+<section class="block cat-interval">
+  <div class="bh">
+    <span class="cat">いもす</span>
+    <span class="title">1次元いもす</span>
+    <span class="sub">区間加算</span>
+  </div>
+  <p class="lead">大量の区間加算をまとめて処理する。更新は O(1)、最後の復元が O(N)。</p>
+  <pre class="dia">add [l,r) += v:
+diff[l] += v
+diff[r] -= v
+最後に左から累積して復元</pre><pre class="code">vector&lt;ll&gt; diff(n + 1, 0);
+auto add = [&amp;](int l, int r, ll v) { diff[l] += v; diff[r] -= v; }; <span class="cm">// [l,r)</span>
+vector&lt;ll&gt; res(n);
+ll cur = 0;
+for (int i = 0; i &lt; n; i++) { cur += diff[i]; res[i] = cur; }</pre>
+  <ul class="pf"><li>diff は N+1 長。r==N に書くため</li><li>問題文 [L,R] は [L-1,R) に変換して add</li></ul>
+</section>
+<section class="block cat-interval">
+  <div class="bh">
+    <span class="cat">いもす</span>
+    <span class="title">2次元いもす</span>
+    <span class="sub">長方形加算</span>
+  </div>
+  <p class="lead">長方形への一括加算。差分に 4 点だけ打ち、あとで横方向・縦方向に累積する。</p>
+  <pre class="dia">add y:[y1,y2), x:[x1,x2) += v
+d[y1][x1]+=v  d[y1][x2]-=v
+d[y2][x1]-=v  d[y2][x2]+=v
+横→縦に累積して復元</pre><pre class="code">vector&lt;vector&lt;ll&gt;&gt; d(h + 1, vector&lt;ll&gt;(w + 1, 0));
+auto add = [&amp;](int y1, int x1, int y2, int x2, ll v) {
+  d[y1][x1] += v; d[y1][x2] -= v; d[y2][x1] -= v; d[y2][x2] += v;
+};
+for (int y = 0; y &lt;= h; y++) for (int x = 0; x &lt; w; x++) d[y][x + 1] += d[y][x];
+for (int x = 0; x &lt;= w; x++) for (int y = 0; y &lt; h; y++) d[y + 1][x] += d[y][x];</pre>
+  <ul class="pf"><li>配列は (H+1)×(W+1)</li><li>閉区間なら y2/x2 を +1 した半開区間に直す</li></ul>
+</section>
+<section class="block cat-interval">
+  <div class="bh">
+    <span class="cat">差分</span>
+    <span class="title">隣接差分</span>
+    <span class="sub">変化点を見る</span>
+  </div>
+  <p class="lead">値そのものではなく「前との差」を見る。連続区間、変化点、階段状の操作で効く。</p>
+  <pre class="dia">a    = [3,3,5,5,2]
+diff = [3,0,2,0,-3]
+a[i] = diff[0] + ... + diff[i]
+同じ値の連続 / 増減回数 / 区間加算の見方に使う</pre><pre class="code">vector&lt;ll&gt; diff(n);
+diff[0] = a[0];
+for (int i = 1; i &lt; n; i++) diff[i] = a[i] - a[i - 1];
+<span class="cm">// 復元</span>
+for (int i = 1; i &lt; n; i++) a[i] = a[i - 1] + diff[i];</pre>
+  <ul class="pf"><li>diff[0] は a[0] として持つと復元しやすい</li><li>差分は負になり得るので符号付き型</li></ul>
+</section>
+<section class="block cat-interval">
+  <div class="bh">
+    <span class="cat">応用</span>
+    <span class="title">累積和 + 二分探索</span>
+    <span class="sub">条件を満たす右端</span>
+  </div>
+  <p class="lead">非負配列では累積和が単調になる。区間和の条件を lower_bound に変換できる。</p>
+  <pre class="dia">非負 a なら pre は単調
+pre[r] - pre[l] &gt;= K
+pre[r] &gt;= pre[l] + K
+lower_bound(pre, pre[l]+K) で最小 r</pre><pre class="code"><span class="cm">// a は非負。各 l から sum[l,r) &gt;= k の最小 r</span>
+for (int l = 0; l &lt; n; l++) {
+  ll target = pre[l] + k;
+  int r = lower_bound(pre.begin(), pre.end(), target) - pre.begin();
+  if (r &lt;= n) { /* [l, r) が条件を満たす */ }
+}</pre>
+  <ul class="pf"><li>負数があると pre は単調でなくなり使えない</li><li>r は l より右。pre は長さ N+1</li></ul>
+</section>
+<section class="block cat-interval">
+  <div class="bh">
+    <span class="cat">確認</span>
+    <span class="title">区間 WA チェック</span>
+    <span class="sub">本番の見直し</span>
+  </div>
+  <p class="lead">サンプルが 1 ずれる、端だけ合わない、RE する時に見るチェックリスト。</p>
+  <pre class="dia">1. 入力は 0-index に直した?
+2. [l,r) と [l,r] を混ぜてない?
+3. r==N に書く配列は N+1 長?
+4. Long で足している?
+5. 2D は y,x の順が一致している?</pre><pre class="code"><span class="cm">// 閉区間入力を読んだ直後に変換</span>
+int l, r; cin &gt;&gt; l &gt;&gt; r;
+l--;
+<span class="cm">// 以後は [l, r) だけで考える</span></pre>
+  <ul class="pf"><li>端点の +1/-1 をその場で直さず、最初に半開区間へ変換する</li><li>図を 0,1,2,... で書くとミスが減る</li></ul>
+</section>
+  </div>
+</div>
+</body>
+</html>

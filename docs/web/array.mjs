@@ -12,6 +12,7 @@ export const arrayPatterns = [
 fill(-1)           → [-1,-1,-1,-1,-1]
 2D h×w             → [[0,0,0], [0,0,0]]`,
     note: '長さ N の 0 埋め・値埋め、2 次元配列、可変リスト。',
+    omit: 'Kotlin: 0 埋めは IntArray(n)（{ 0 } 省略可）。C++/Java: 0 埋めは初期化子なしでよい（new int[n] は 0、vector<int>(n) も 0）。',
     code: {
       kotlin: `val a = IntArray(n)                 // 0 埋め
 val b = IntArray(n) { -1 }          // -1 埋め
@@ -39,6 +40,7 @@ vector<vector<int>> g(h, vector<int>(w));   // 2次元
     sub: '値 / 添字 / 両方',
     state: `[10,20,30] → i=0:10  i=1:20  i=2:30`,
     note: '値だけ / 添字だけ / 添字と値の両方を回す 3 パターン。',
+    omit: 'C++: (int) キャストは省略可だが size() は unsigned。i-1>=0 等の比較で罠なのでキャスト推奨。',
     code: {
       kotlin: `for (x in a) { }                    // 値
 for (i in a.indices) { }            // 添字 (a[i])
@@ -152,6 +154,7 @@ int idx = find(a.begin(), a.end(), 9) - a.begin();  // 無いと size()`,
     sub: 'sum / max / min',
     state: `[3,1,2] → sum=6  max=3  min=1`,
     note: '合計はオーバーフローに注意（Long で受ける）。空配列の max/min は例外。',
+    omit: 'C++: accumulate の 0LL は省略不可（0 だと int 集計で溢れる）。Kotlin: 溢れないなら a.sum() で可。',
     code: {
       kotlin: `val s = a.sumOf { it.toLong() }     // Long で集計 (溢れ防止)
 val mx = a.max(); val mn = a.min()  // 空は例外 → maxOrNull()`,
@@ -208,6 +211,7 @@ for (size_t i = 0; i < a.size(); i++) b[i] = a[i] * 2;`,
     sub: 'sort / desc / key',
     state: `[3,1,2] → 昇順 [1,2,3] / 降順 [3,2,1]`,
     note: '破壊的か非破壊か、降順、キー指定（複数キー）を押さえる。',
+    omit: '比較関数を省略すると昇順（自然順序）。C++ の pair/tuple も比較省略で辞書順に並ぶ。',
     code: {
       kotlin: `a.sort()                            // 破壊的・昇順
 val asc = a.sorted()                // 非破壊 (List)
@@ -233,6 +237,7 @@ sort(v.begin(), v.end(), [](auto&x, auto&y){ return x.second < y.second; });`,
     sub: 'reverse / slice',
     state: `[1,2,3,4] → 反転 [4,3,2,1] / [1,3) = [2,3]`,
     note: '反転、部分列の切り出し（半開区間 [l, r)）、左 k 回転。',
+    omit: 'Python: スライスは開始/終了を省略可（a[:k] / a[k:] / a[::-1]）。',
     code: {
       kotlin: `val r = a.reversed()                // List
 val sub = a.slice(1..2)             // 添字 1..2`,
@@ -317,6 +322,7 @@ for (int i = 0; i < h; i++)
     state: `push 3,1,2 → poll → 1,2,3  (最小ヒープ)
 add/poll は O(log N)`,
     note: 'Dijkstra・貪欲で頻出。「常に最小（or 最大）を取り出す」袋。',
+    omit: 'C++: 最大ヒープは priority_queue<int>（後ろ2引数省略）。最小の greater<> は <> 形でよい（=greater<int>, C++17+）。Kotlin/Java: 比較を省略すると最小ヒープ。',
     code: {
       kotlin: `val pq = PriorityQueue<Int>()                 // 最小ヒープ
 val mx = PriorityQueue<Int>(reverseOrder())   // 最大ヒープ
@@ -439,6 +445,7 @@ int hi = upper_bound(a.begin(), a.end(), x) - a.begin(); // x より大`,
     state: `"a b c" → split → [a, b, c]
 [a, b, c] → join(" ") → "a b c"`,
     note: '空白区切りで分解、配列を連結、文字単位の配列化。',
+    omit: 'Python: split() は引数省略で空白区切り（連続空白もまとめる）。split(" ") とは挙動が違う。',
     code: {
       kotlin: `val parts = s.split(" ")
 val nums = s.split(" ").map { it.toInt() }

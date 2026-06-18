@@ -32,6 +32,8 @@ pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospa
 .code .cm { color:#999; }
 .pf { margin:4px 0 0; padding-left:13px; }
 .pf li { font-size:8.2px; margin:1px 0; }
+.omit { font-size:8px; color:#666; margin:3px 0 0; }
+.omit b { background:#fef9c3; color:#a16207; padding:0 3px; border-radius:2px; margin-right:3px; }
 @media screen {
   body { background:#999; padding:14px; }
   .sheet { background:#fff; max-width:200mm; margin:0 auto; padding:9mm;
@@ -62,7 +64,8 @@ pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospa
 .cat-string .bh .cat{background:#e0e7ff;color:#4338ca} .cat-string .code{border-left-color:#4f46e5}
 .cat-geometry .bh .cat{background:#fee2e2;color:#b91c1c} .cat-geometry .code{border-left-color:#dc2626}
 .cat-io .bh .cat{background:#ccfbf1;color:#0f766e} .cat-io .code{border-left-color:#14b8a6}
-.cat-arr .bh .cat{background:#fef9c3;color:#a16207} .cat-arr .code{border-left-color:#ca8a04}</style>
+.cat-arr .bh .cat{background:#fef9c3;color:#a16207} .cat-arr .code{border-left-color:#ca8a04}
+.cat-interval .bh .cat{background:#dcfce7;color:#166534} .cat-interval .code{border-left-color:#22c55e}</style>
 </head>
 <body>
 <div class="sheet">
@@ -71,7 +74,7 @@ pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospa
     <span class="lang">Java</span>
     <span class="note">20 topics · 印刷対応 (A4)</span>
   </div>
-  <div class="legend">各項目は 中身の変化（図）→ コード の順。配列操作と予選で使う標準ライブラリ。</div>
+  <div class="legend">各項目は 中身の変化（図）→ コード →<b>略</b>（省略可能な書き方）の順。Kotlin の <code>it</code> はラムダ引数の省略名、C++ は <code>using namespace std</code> 前提。</div>
   <div class="cols">
 <section class="block cat-arr">
   <div class="bh">
@@ -86,7 +89,7 @@ fill(-1)           → [-1,-1,-1,-1,-1]
 int[] b = new int[n]; Arrays.fill(b, -1);   <span class="cm">// -1 埋め</span>
 int[][] g = new int[h][w];          <span class="cm">// 2次元</span>
 List&lt;Integer&gt; list = new ArrayList&lt;&gt;();</pre>
-</section>
+  <p class="omit"><b>略</b>Kotlin: 0 埋めは IntArray(n)（{ 0 } 省略可）。C++/Java: 0 埋めは初期化子なしでよい（new int[n] は 0、vector&lt;int&gt;(n) も 0）。</p></section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">走査</span>
@@ -96,7 +99,7 @@ List&lt;Integer&gt; list = new ArrayList&lt;&gt;();</pre>
   <p class="lead">値だけ / 添字だけ / 添字と値の両方を回す 3 パターン。</p>
   <pre class="dia">[10,20,30] → i=0:10  i=1:20  i=2:30</pre><pre class="code">for (int x : a) { }                 <span class="cm">// 値</span>
 for (int i = 0; i &lt; a.length; i++){ }   <span class="cm">// 添字</span></pre>
-</section>
+  <p class="omit"><b>略</b>C++: (int) キャストは省略可だが size() は unsigned。i-1&gt;=0 等の比較で罠なのでキャスト推奨。</p></section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">編集</span>
@@ -110,7 +113,7 @@ a.add(3);                           <span class="cm">// 末尾追加</span>
 int last = a.remove(a.size() - 1);  <span class="cm">// 末尾取り出し</span>
 a.add(0, 0);                        <span class="cm">// 先頭挿入 (O(N))</span>
 int first = a.remove(0);            <span class="cm">// 先頭取り出し (O(N)) → ArrayDeque</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">編集</span>
@@ -121,7 +124,7 @@ int first = a.remove(0);            <span class="cm">// 先頭取り出し (O(N)
   <pre class="dia">[1,2] ++ [3,4] → [1,2,3,4]
 ソート済 [1,3] と [2,4] を merge → [1,2,3,4]</pre><pre class="code">List&lt;Integer&gt; c = new ArrayList&lt;&gt;(a);
 c.addAll(b);                        <span class="cm">// 連結</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">編集</span>
@@ -130,7 +133,7 @@ c.addAll(b);                        <span class="cm">// 連結</span></pre>
   </div>
   <p class="lead">順序を保つ重複除去と、ソートして潰す方法。</p>
   <pre class="dia">[1,1,2,3,3] → [1,2,3]</pre><pre class="code">List&lt;Integer&gt; u = a.stream().distinct().collect(Collectors.toList());</pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">探索</span>
@@ -140,7 +143,7 @@ c.addAll(b);                        <span class="cm">// 連結</span></pre>
   <p class="lead">存在判定と添字。配列の contains は O(N)（多用なら Set 化で O(1)）。</p>
   <pre class="dia">[5,3,9] 3を含む? → true   9の位置 → 2</pre><pre class="code">boolean has = list.contains(3);
 int idx = list.indexOf(9);          <span class="cm">// 無ければ -1</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">集計</span>
@@ -151,7 +154,7 @@ int idx = list.indexOf(9);          <span class="cm">// 無ければ -1</span></
   <pre class="dia">[3,1,2] → sum=6  max=3  min=1</pre><pre class="code">long s = 0; for (int x : a) s += x; <span class="cm">// long で集計</span>
 int mx = Arrays.stream(a).max().getAsInt();
 int mn = Arrays.stream(a).min().getAsInt();</pre>
-</section>
+  <p class="omit"><b>略</b>C++: accumulate の 0LL は省略不可（0 だと int 集計で溢れる）。Kotlin: 溢れないなら a.sum() で可。</p></section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">集計</span>
@@ -161,7 +164,7 @@ int mn = Arrays.stream(a).min().getAsInt();</pre>
   <p class="lead">条件を満たす個数を数える / 満たす要素だけ取り出す。</p>
   <pre class="dia">[1,2,3,4] → even を抽出 → [2,4]  cnt=2</pre><pre class="code">long cnt = Arrays.stream(a).filter(x -&gt; x % 2 == 0).count();
 int[] evens = Arrays.stream(a).filter(x -&gt; x % 2 == 0).toArray();</pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">変換</span>
@@ -170,7 +173,7 @@ int[] evens = Arrays.stream(a).filter(x -&gt; x % 2 == 0).toArray();</pre>
   </div>
   <p class="lead">各要素に同じ加工をして新しい列を作る。</p>
   <pre class="dia">[1,2,3] → ×2 → [2,4,6]</pre><pre class="code">int[] b = Arrays.stream(a).map(x -&gt; x * 2).toArray();</pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">整列</span>
@@ -181,7 +184,7 @@ int[] evens = Arrays.stream(a).filter(x -&gt; x % 2 == 0).toArray();</pre>
   <pre class="dia">[3,1,2] → 昇順 [1,2,3] / 降順 [3,2,1]</pre><pre class="code">Arrays.sort(a);                     <span class="cm">// 昇順 (プリミティブは昇順のみ)</span>
 list.sort(Comparator.reverseOrder());           <span class="cm">// 降順</span>
 list.sort(Comparator.comparingInt(p -&gt; p.b));   <span class="cm">// キー指定</span></pre>
-</section>
+  <p class="omit"><b>略</b>比較関数を省略すると昇順（自然順序）。C++ の pair/tuple も比較省略で辞書順に並ぶ。</p></section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">整列</span>
@@ -191,7 +194,7 @@ list.sort(Comparator.comparingInt(p -&gt; p.b));   <span class="cm">// キー指
   <p class="lead">反転、部分列の切り出し（半開区間 [l, r)）、左 k 回転。</p>
   <pre class="dia">[1,2,3,4] → 反転 [4,3,2,1] / [1,3) = [2,3]</pre><pre class="code">int[] sub = Arrays.copyOfRange(a, 1, 3);    <span class="cm">// [1,3)</span>
 <span class="cm">// 反転(List): Collections.reverse(list);</span></pre>
-</section>
+  <p class="omit"><b>略</b>Python: スライスは開始/終了を省略可（a[:k] / a[k:] / a[::-1]）。</p></section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">探索</span>
@@ -201,7 +204,7 @@ list.sort(Comparator.comparingInt(p -&gt; p.b));   <span class="cm">// キー指
   <p class="lead">「最大値そのもの」でなく「最大の添字」が欲しいとき。</p>
   <pre class="dia">[3,9,1] → maxIdx = 1 (値 9)</pre><pre class="code">int idx = 0;
 for (int i = 1; i &lt; a.length; i++) if (a[i] &gt; a[idx]) idx = i;</pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">集計</span>
@@ -213,7 +216,7 @@ for (int i = 1; i &lt; a.length; i++) if (a[i] &gt; a[idx]) idx = i;</pre>
 sum[l,r) = pre[r] - pre[l]</pre><pre class="code">long[] pre = new long[n + 1];
 for (int i = 0; i &lt; n; i++) pre[i + 1] = pre[i] + a[i];
 long s = pre[r] - pre[l];           <span class="cm">// [l, r)</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">変換</span>
@@ -227,7 +230,7 @@ long s = pre[r] - pre[l];           <span class="cm">// [l, r)</span></pre>
               [3,6]]</pre><pre class="code">int[][] t = new int[w][h];
 for (int i = 0; i &lt; h; i++)
   for (int j = 0; j &lt; w; j++) t[j][i] = g[i][j];</pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">コレクション</span>
@@ -240,7 +243,7 @@ add/poll は O(log N)</pre><pre class="code">PriorityQueue&lt;Integer&gt; pq = n
 PriorityQueue&lt;Integer&gt; mx =
     new PriorityQueue&lt;&gt;(Collections.reverseOrder());     <span class="cm">// 最大</span>
 pq.add(3); int top = pq.poll();</pre>
-</section>
+  <p class="omit"><b>略</b>C++: 最大ヒープは priority_queue&lt;int&gt;（後ろ2引数省略）。最小の greater&lt;&gt; は &lt;&gt; 形でよい（=greater&lt;int&gt;, C++17+）。Kotlin/Java: 比較を省略すると最小ヒープ。</p></section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">コレクション</span>
@@ -252,7 +255,7 @@ pq.add(3); int top = pq.poll();</pre>
 front [ . . . ] back</pre><pre class="code">Deque&lt;Integer&gt; dq = new ArrayDeque&lt;&gt;();
 dq.addLast(1); dq.addFirst(0);
 int f = dq.pollFirst(), l = dq.pollLast();</pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">コレクション</span>
@@ -263,7 +266,7 @@ int f = dq.pollFirst(), l = dq.pollLast();</pre>
   <pre class="dia">[1,1,2,3] → {1,2,3}  (3 in set? → true)</pre><pre class="code">Set&lt;Integer&gt; s = new HashSet&lt;&gt;();
 for (int x : a) s.add(x);
 if (s.contains(3)) { }</pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">コレクション</span>
@@ -274,7 +277,7 @@ if (s.contains(3)) { }</pre>
   <pre class="dia">[a,b,a] → {a:2, b:1}</pre><pre class="code">Map&lt;Integer, Integer&gt; cnt = new HashMap&lt;&gt;();
 for (int x : a) cnt.merge(x, 1, Integer::sum);
 int c = cnt.getOrDefault(x, 0);</pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">探索</span>
@@ -285,7 +288,7 @@ int c = cnt.getOrDefault(x, 0);</pre>
   <pre class="dia">sorted=[1,3,5,7]  x=5
 lower=2 (5以上の先頭) / upper=3 (5より大の先頭)</pre><pre class="code">int i = Arrays.binarySearch(a, x);  <span class="cm">// 無ければ -(挿入点)-1</span>
 int ins = i &lt; 0 ? -i - 1 : i;</pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">文字列</span>
@@ -297,7 +300,7 @@ int ins = i &lt; 0 ? -i - 1 : i;</pre>
 [a, b, c] → join(" ") → "a b c"</pre><pre class="code">String[] parts = s.split(" ");
 String joined = String.join(" ", arr);
 char[] cs = s.toCharArray();</pre>
-</section>
+  <p class="omit"><b>略</b>Python: split() は引数省略で空白区切り（連続空白もまとめる）。split(" ") とは挙動が違う。</p></section>
   </div>
 </div>
 </body>

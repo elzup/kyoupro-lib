@@ -32,6 +32,8 @@ pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospa
 .code .cm { color:#999; }
 .pf { margin:4px 0 0; padding-left:13px; }
 .pf li { font-size:8.2px; margin:1px 0; }
+.omit { font-size:8px; color:#666; margin:3px 0 0; }
+.omit b { background:#fef9c3; color:#a16207; padding:0 3px; border-radius:2px; margin-right:3px; }
 @media screen {
   body { background:#999; padding:14px; }
   .sheet { background:#fff; max-width:200mm; margin:0 auto; padding:9mm;
@@ -62,7 +64,8 @@ pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospa
 .cat-string .bh .cat{background:#e0e7ff;color:#4338ca} .cat-string .code{border-left-color:#4f46e5}
 .cat-geometry .bh .cat{background:#fee2e2;color:#b91c1c} .cat-geometry .code{border-left-color:#dc2626}
 .cat-io .bh .cat{background:#ccfbf1;color:#0f766e} .cat-io .code{border-left-color:#14b8a6}
-.cat-arr .bh .cat{background:#fef9c3;color:#a16207} .cat-arr .code{border-left-color:#ca8a04}</style>
+.cat-arr .bh .cat{background:#fef9c3;color:#a16207} .cat-arr .code{border-left-color:#ca8a04}
+.cat-interval .bh .cat{background:#dcfce7;color:#166534} .cat-interval .code{border-left-color:#22c55e}</style>
 </head>
 <body>
 <div class="sheet">
@@ -90,7 +93,7 @@ int main() {
   <span class="cm">// ... 読む ...</span>
   return 0;
 }</pre>
-</section>
+  <p class="omit"><b>略</b>Python: input=sys.stdin.readline は速度用（省略可・遅くなる）。C++: ios::sync_with_stdio(false)/cin.tie(nullptr) は省略可（遅くなる）。Kotlin/Java: 出力の flush / print(sb) は省略不可。</p></section>
 <section class="block cat-io">
   <div class="bh">
     <span class="cat">入力</span>
@@ -102,7 +105,7 @@ int main() {
 5
 3 7 2</pre><pre class="code">int n; cin &gt;&gt; n;                        <span class="cm">// 1 個</span>
 int a, b, c; cin &gt;&gt; a &gt;&gt; b &gt;&gt; c;        <span class="cm">// 1 行に複数 (&gt;&gt; が空白/改行を吸収)</span></pre>
-</section>
+  </section>
 <section class="block cat-io">
   <div class="bh">
     <span class="cat">入力</span>
@@ -115,7 +118,7 @@ int a, b, c; cin &gt;&gt; a &gt;&gt; b &gt;&gt; c;        <span class="cm">// 1 
 1 2 3         a = [1, 2, 3]</pre><pre class="code">int n; cin &gt;&gt; n;
 vector&lt;int&gt; a(n);
 for (auto&amp; x : a) cin &gt;&gt; x;</pre>
-</section>
+  </section>
 <section class="block cat-io">
   <div class="bh">
     <span class="cat">入力</span>
@@ -130,7 +133,7 @@ for (auto&amp; x : a) cin &gt;&gt; x;</pre>
 1 3</pre><pre class="code">int n; cin &gt;&gt; n;
 vector&lt;array&lt;int, 2&gt;&gt; e(n);
 for (auto&amp; [u, v] : e) cin &gt;&gt; u &gt;&gt; v;</pre>
-</section>
+  </section>
 <section class="block cat-io">
   <div class="bh">
     <span class="cat">入力</span>
@@ -144,7 +147,7 @@ for (auto&amp; [u, v] : e) cin &gt;&gt; u &gt;&gt; v;</pre>
 ..#</pre><pre class="code">int h, w; cin &gt;&gt; h &gt;&gt; w;
 vector&lt;string&gt; grid(h);
 for (auto&amp; row : grid) cin &gt;&gt; row;      <span class="cm">// 空白を含まない行は &gt;&gt; でOK</span></pre>
-</section>
+  </section>
 <section class="block cat-io">
   <div class="bh">
     <span class="cat">入力</span>
@@ -154,7 +157,7 @@ for (auto&amp; row : grid) cin &gt;&gt; row;      <span class="cm">// 空白を�
   <p class="lead">空白で区切られた 1 語と、空白を含む 1 行全体の読み分け。</p>
   <pre class="code">string s; cin &gt;&gt; s;                     <span class="cm">// 空白区切りの 1 語</span>
 string line; getline(cin &gt;&gt; ws, line);  <span class="cm">// 1 行丸ごと (先頭の改行を ws で飛ばす)</span></pre>
-</section>
+  </section>
 <section class="block cat-io">
   <div class="bh">
     <span class="cat">入力</span>
@@ -167,7 +170,7 @@ while (t--) { /* 1 ケース */ }
 <span class="cm">// ICPC: 0 終端</span>
 int n;
 while (cin &gt;&gt; n &amp;&amp; n != 0) { /* ... */ }</pre>
-</section>
+  </section>
 <section class="block cat-io">
   <div class="bh">
     <span class="cat">入力</span>
@@ -178,7 +181,7 @@ while (cin &gt;&gt; n &amp;&amp; n != 0) { /* ... */ }</pre>
   <pre class="code">for (int i = 0; i &lt; n; i++)                 <span class="cm">// 配列をスペース区切り</span>
   cout &lt;&lt; a[i] &lt;&lt; " \n"[i + 1 == n];
 cout &lt;&lt; fixed &lt;&lt; setprecision(10) &lt;&lt; ans &lt;&lt; "\n";   <span class="cm">// 小数 10 桁</span></pre>
-</section>
+  </section>
   </div>
 </div>
 </body>

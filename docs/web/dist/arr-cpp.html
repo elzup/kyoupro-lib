@@ -32,6 +32,8 @@ pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospa
 .code .cm { color:#999; }
 .pf { margin:4px 0 0; padding-left:13px; }
 .pf li { font-size:8.2px; margin:1px 0; }
+.omit { font-size:8px; color:#666; margin:3px 0 0; }
+.omit b { background:#fef9c3; color:#a16207; padding:0 3px; border-radius:2px; margin-right:3px; }
 @media screen {
   body { background:#999; padding:14px; }
   .sheet { background:#fff; max-width:200mm; margin:0 auto; padding:9mm;
@@ -62,7 +64,8 @@ pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospa
 .cat-string .bh .cat{background:#e0e7ff;color:#4338ca} .cat-string .code{border-left-color:#4f46e5}
 .cat-geometry .bh .cat{background:#fee2e2;color:#b91c1c} .cat-geometry .code{border-left-color:#dc2626}
 .cat-io .bh .cat{background:#ccfbf1;color:#0f766e} .cat-io .code{border-left-color:#14b8a6}
-.cat-arr .bh .cat{background:#fef9c3;color:#a16207} .cat-arr .code{border-left-color:#ca8a04}</style>
+.cat-arr .bh .cat{background:#fef9c3;color:#a16207} .cat-arr .code{border-left-color:#ca8a04}
+.cat-interval .bh .cat{background:#dcfce7;color:#166534} .cat-interval .code{border-left-color:#22c55e}</style>
 </head>
 <body>
 <div class="sheet">
@@ -71,7 +74,7 @@ pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospa
     <span class="lang">C++</span>
     <span class="note">20 topics · 印刷対応 (A4)</span>
   </div>
-  <div class="legend">各項目は 中身の変化（図）→ コード の順。配列操作と予選で使う標準ライブラリ。</div>
+  <div class="legend">各項目は 中身の変化（図）→ コード →<b>略</b>（省略可能な書き方）の順。Kotlin の <code>it</code> はラムダ引数の省略名、C++ は <code>using namespace std</code> 前提。</div>
   <div class="cols">
 <section class="block cat-arr">
   <div class="bh">
@@ -86,7 +89,7 @@ fill(-1)           → [-1,-1,-1,-1,-1]
 vector&lt;int&gt; b(n, -1);               <span class="cm">// -1 埋め</span>
 vector&lt;vector&lt;int&gt;&gt; g(h, vector&lt;int&gt;(w));   <span class="cm">// 2次元</span>
 <span class="cm">// vector&lt;int&gt; list; list.push_back(x);</span></pre>
-</section>
+  <p class="omit"><b>略</b>Kotlin: 0 埋めは IntArray(n)（{ 0 } 省略可）。C++/Java: 0 埋めは初期化子なしでよい（new int[n] は 0、vector&lt;int&gt;(n) も 0）。</p></section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">走査</span>
@@ -96,7 +99,7 @@ vector&lt;vector&lt;int&gt;&gt; g(h, vector&lt;int&gt;(w));   <span class="cm">/
   <p class="lead">値だけ / 添字だけ / 添字と値の両方を回す 3 パターン。</p>
   <pre class="dia">[10,20,30] → i=0:10  i=1:20  i=2:30</pre><pre class="code">for (int x : a) { }                 <span class="cm">// 値</span>
 for (int i = 0; i &lt; (int)a.size(); i++){ }  <span class="cm">// 添字</span></pre>
-</section>
+  <p class="omit"><b>略</b>C++: (int) キャストは省略可だが size() は unsigned。i-1&gt;=0 等の比較で罠なのでキャスト推奨。</p></section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">編集</span>
@@ -110,7 +113,7 @@ a.push_back(3);                     <span class="cm">// 末尾追加</span>
 int last = a.back(); a.pop_back();  <span class="cm">// 末尾取り出し</span>
 a.insert(a.begin(), 0);             <span class="cm">// 先頭挿入 (O(N))</span>
 a.erase(a.begin());                 <span class="cm">// 先頭削除 (O(N)) → deque 推奨</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">編集</span>
@@ -123,7 +126,7 @@ a.erase(a.begin());                 <span class="cm">// 先頭削除 (O(N)) → 
 c.insert(c.end(), b.begin(), b.end());          <span class="cm">// 連結</span>
 vector&lt;int&gt; m;
 merge(a.begin(), a.end(), b.begin(), b.end(), back_inserter(m)); <span class="cm">// ソート済マージ</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">編集</span>
@@ -133,7 +136,7 @@ merge(a.begin(), a.end(), b.begin(), b.end(), back_inserter(m)); <span class="cm
   <p class="lead">順序を保つ重複除去と、ソートして潰す方法。</p>
   <pre class="dia">[1,1,2,3,3] → [1,2,3]</pre><pre class="code">sort(a.begin(), a.end());
 a.erase(unique(a.begin(), a.end()), a.end());   <span class="cm">// unique は隣接重複を後ろへ寄せる</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">探索</span>
@@ -143,7 +146,7 @@ a.erase(unique(a.begin(), a.end()), a.end());   <span class="cm">// unique は�
   <p class="lead">存在判定と添字。配列の contains は O(N)（多用なら Set 化で O(1)）。</p>
   <pre class="dia">[5,3,9] 3を含む? → true   9の位置 → 2</pre><pre class="code">bool has = find(a.begin(), a.end(), 3) != a.end();
 int idx = find(a.begin(), a.end(), 9) - a.begin();  <span class="cm">// 無いと size()</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">集計</span>
@@ -154,7 +157,7 @@ int idx = find(a.begin(), a.end(), 9) - a.begin();  <span class="cm">// 無い�
   <pre class="dia">[3,1,2] → sum=6  max=3  min=1</pre><pre class="code">ll s = accumulate(a.begin(), a.end(), 0LL);  <span class="cm">// 0LL で long long</span>
 int mx = *max_element(a.begin(), a.end());
 int mn = *min_element(a.begin(), a.end());</pre>
-</section>
+  <p class="omit"><b>略</b>C++: accumulate の 0LL は省略不可（0 だと int 集計で溢れる）。Kotlin: 溢れないなら a.sum() で可。</p></section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">集計</span>
@@ -164,7 +167,7 @@ int mn = *min_element(a.begin(), a.end());</pre>
   <p class="lead">条件を満たす個数を数える / 満たす要素だけ取り出す。</p>
   <pre class="dia">[1,2,3,4] → even を抽出 → [2,4]  cnt=2</pre><pre class="code">int cnt = count_if(a.begin(), a.end(), [](int x){ return x%2==0; });
 vector&lt;int&gt; evens; for (int x : a) if (x%2==0) evens.push_back(x);</pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">変換</span>
@@ -174,7 +177,7 @@ vector&lt;int&gt; evens; for (int x : a) if (x%2==0) evens.push_back(x);</pre>
   <p class="lead">各要素に同じ加工をして新しい列を作る。</p>
   <pre class="dia">[1,2,3] → ×2 → [2,4,6]</pre><pre class="code">vector&lt;int&gt; b(a.size());
 for (size_t i = 0; i &lt; a.size(); i++) b[i] = a[i] * 2;</pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">整列</span>
@@ -185,7 +188,7 @@ for (size_t i = 0; i &lt; a.size(); i++) b[i] = a[i] * 2;</pre>
   <pre class="dia">[3,1,2] → 昇順 [1,2,3] / 降順 [3,2,1]</pre><pre class="code">sort(a.begin(), a.end());           <span class="cm">// 昇順</span>
 sort(a.rbegin(), a.rend());         <span class="cm">// 降順</span>
 sort(v.begin(), v.end(), [](auto&amp;x, auto&amp;y){ return x.second &lt; y.second; });</pre>
-</section>
+  <p class="omit"><b>略</b>比較関数を省略すると昇順（自然順序）。C++ の pair/tuple も比較省略で辞書順に並ぶ。</p></section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">整列</span>
@@ -196,7 +199,7 @@ sort(v.begin(), v.end(), [](auto&amp;x, auto&amp;y){ return x.second &lt; y.seco
   <pre class="dia">[1,2,3,4] → 反転 [4,3,2,1] / [1,3) = [2,3]</pre><pre class="code">reverse(a.begin(), a.end());                <span class="cm">// 破壊的反転</span>
 vector&lt;int&gt; sub(a.begin()+1, a.begin()+3);  <span class="cm">// [1,3)</span>
 rotate(a.begin(), a.begin()+k, a.end());    <span class="cm">// 左 k 回転</span></pre>
-</section>
+  <p class="omit"><b>略</b>Python: スライスは開始/終了を省略可（a[:k] / a[k:] / a[::-1]）。</p></section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">探索</span>
@@ -205,7 +208,7 @@ rotate(a.begin(), a.begin()+k, a.end());    <span class="cm">// 左 k 回転</sp
   </div>
   <p class="lead">「最大値そのもの」でなく「最大の添字」が欲しいとき。</p>
   <pre class="dia">[3,9,1] → maxIdx = 1 (値 9)</pre><pre class="code">int idx = max_element(a.begin(), a.end()) - a.begin();</pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">集計</span>
@@ -217,7 +220,7 @@ rotate(a.begin(), a.begin()+k, a.end());    <span class="cm">// 左 k 回転</sp
 sum[l,r) = pre[r] - pre[l]</pre><pre class="code">vector&lt;ll&gt; pre(n + 1);
 for (int i = 0; i &lt; n; i++) pre[i + 1] = pre[i] + a[i];
 ll s = pre[r] - pre[l];             <span class="cm">// [l, r)</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">変換</span>
@@ -231,7 +234,7 @@ ll s = pre[r] - pre[l];             <span class="cm">// [l, r)</span></pre>
               [3,6]]</pre><pre class="code">vector&lt;vector&lt;int&gt;&gt; t(w, vector&lt;int&gt;(h));
 for (int i = 0; i &lt; h; i++)
   for (int j = 0; j &lt; w; j++) t[j][i] = g[i][j];</pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">コレクション</span>
@@ -243,7 +246,7 @@ for (int i = 0; i &lt; h; i++)
 add/poll は O(log N)</pre><pre class="code">priority_queue&lt;int&gt; mx;                         <span class="cm">// 最大ヒープ (既定)</span>
 priority_queue&lt;int, vector&lt;int&gt;, greater&lt;&gt;&gt; mn; <span class="cm">// 最小ヒープ</span>
 mx.push(3); int t = mx.top(); mx.pop();</pre>
-</section>
+  <p class="omit"><b>略</b>C++: 最大ヒープは priority_queue&lt;int&gt;（後ろ2引数省略）。最小の greater&lt;&gt; は &lt;&gt; 形でよい（=greater&lt;int&gt;, C++17+）。Kotlin/Java: 比較を省略すると最小ヒープ。</p></section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">コレクション</span>
@@ -256,7 +259,7 @@ front [ . . . ] back</pre><pre class="code">deque&lt;int&gt; dq;
 dq.push_back(1); dq.push_front(0);
 int f = dq.front(); dq.pop_front();
 <span class="cm">// queue&lt;int&gt; / stack&lt;int&gt; も同様</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">コレクション</span>
@@ -266,7 +269,7 @@ int f = dq.front(); dq.pop_front();
   <p class="lead">重複を消す / 含まれるかを高速判定。順序つきが要るなら Tree/std::set。</p>
   <pre class="dia">[1,1,2,3] → {1,2,3}  (3 in set? → true)</pre><pre class="code">set&lt;int&gt; s(a.begin(), a.end());     <span class="cm">// 重複排除 + 昇順</span>
 if (s.count(3)) { }                 <span class="cm">// unordered_set は平均 O(1)</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">コレクション</span>
@@ -277,7 +280,7 @@ if (s.count(3)) { }                 <span class="cm">// unordered_set は平均 
   <pre class="dia">[a,b,a] → {a:2, b:1}</pre><pre class="code">map&lt;int, int&gt; cnt;
 for (int x : a) cnt[x]++;           <span class="cm">// 既定 0 から +1</span>
 int c = cnt[x];                     <span class="cm">// 注意: 参照で要素が増える</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">探索</span>
@@ -288,7 +291,7 @@ int c = cnt[x];                     <span class="cm">// 注意: 参照で要素�
   <pre class="dia">sorted=[1,3,5,7]  x=5
 lower=2 (5以上の先頭) / upper=3 (5より大の先頭)</pre><pre class="code">int lo = lower_bound(a.begin(), a.end(), x) - a.begin(); <span class="cm">// x 以上の先頭</span>
 int hi = upper_bound(a.begin(), a.end(), x) - a.begin(); <span class="cm">// x より大</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">文字列</span>
@@ -300,7 +303,7 @@ int hi = upper_bound(a.begin(), a.end(), x) - a.begin(); <span class="cm">// x �
 [a, b, c] → join(" ") → "a b c"</pre><pre class="code">stringstream ss(s); string w;       <span class="cm">// split は stringstream</span>
 while (ss &gt;&gt; w) parts.push_back(w);
 <span class="cm">// join: 自前ループで " " を挟む</span></pre>
-</section>
+  <p class="omit"><b>略</b>Python: split() は引数省略で空白区切り（連続空白もまとめる）。split(" ") とは挙動が違う。</p></section>
   </div>
 </div>
 </body>
