@@ -32,6 +32,8 @@ pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospa
 .code .cm { color:#999; }
 .pf { margin:4px 0 0; padding-left:13px; }
 .pf li { font-size:8.2px; margin:1px 0; }
+.omit { font-size:8px; color:#666; margin:3px 0 0; }
+.omit b { background:#fef9c3; color:#a16207; padding:0 3px; border-radius:2px; margin-right:3px; }
 @media screen {
   body { background:#999; padding:14px; }
   .sheet { background:#fff; max-width:200mm; margin:0 auto; padding:9mm;
@@ -62,7 +64,8 @@ pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospa
 .cat-string .bh .cat{background:#e0e7ff;color:#4338ca} .cat-string .code{border-left-color:#4f46e5}
 .cat-geometry .bh .cat{background:#fee2e2;color:#b91c1c} .cat-geometry .code{border-left-color:#dc2626}
 .cat-io .bh .cat{background:#ccfbf1;color:#0f766e} .cat-io .code{border-left-color:#14b8a6}
-.cat-arr .bh .cat{background:#fef9c3;color:#a16207} .cat-arr .code{border-left-color:#ca8a04}</style>
+.cat-arr .bh .cat{background:#fef9c3;color:#a16207} .cat-arr .code{border-left-color:#ca8a04}
+.cat-interval .bh .cat{background:#dcfce7;color:#166534} .cat-interval .code{border-left-color:#22c55e}</style>
 </head>
 <body>
 <div class="sheet">
@@ -71,7 +74,7 @@ pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospa
     <span class="lang">Python</span>
     <span class="note">20 topics · 印刷対応 (A4)</span>
   </div>
-  <div class="legend">各項目は 中身の変化（図）→ コード の順。配列操作と予選で使う標準ライブラリ。</div>
+  <div class="legend">各項目は 中身の変化（図）→ コード →<b>略</b>（省略可能な書き方）の順。Kotlin の <code>it</code> はラムダ引数の省略名、C++ は <code>using namespace std</code> 前提。</div>
   <div class="cols">
 <section class="block cat-arr">
   <div class="bh">
@@ -86,7 +89,7 @@ fill(-1)           → [-1,-1,-1,-1,-1]
 b = [-1] * n                        <span class="cm"># -1 埋め</span>
 g = [[0] * w for _ in range(h)]     <span class="cm"># 2次元 (× [[0]*w]*h は参照共有でバグ)</span>
 lst = []                            <span class="cm"># 可変リスト</span></pre>
-</section>
+  <p class="omit"><b>略</b>Kotlin: 0 埋めは IntArray(n)（{ 0 } 省略可）。C++/Java: 0 埋めは初期化子なしでよい（new int[n] は 0、vector&lt;int&gt;(n) も 0）。</p></section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">走査</span>
@@ -97,7 +100,7 @@ lst = []                            <span class="cm"># 可変リスト</span></p
   <pre class="dia">[10,20,30] → i=0:10  i=1:20  i=2:30</pre><pre class="code">for x in a: ...                     <span class="cm"># 値</span>
 for i in range(len(a)): ...         <span class="cm"># 添字</span>
 for i, x in enumerate(a): ...       <span class="cm"># 両方</span></pre>
-</section>
+  <p class="omit"><b>略</b>C++: (int) キャストは省略可だが size() は unsigned。i-1&gt;=0 等の比較で罠なのでキャスト推奨。</p></section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">編集</span>
@@ -111,7 +114,7 @@ a.append(3)                         <span class="cm"># 末尾追加 (push)</span
 last = a.pop()                      <span class="cm"># 末尾取り出し (pop)</span>
 a.insert(0, 0)                      <span class="cm"># 先頭挿入 (unshift, O(N))</span>
 first = a.pop(0)                    <span class="cm"># 先頭取り出し (shift, O(N)) → deque 推奨</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">編集</span>
@@ -123,7 +126,7 @@ first = a.pop(0)                    <span class="cm"># 先頭取り出し (shift
 ソート済 [1,3] と [2,4] を merge → [1,2,3,4]</pre><pre class="code">c = a + b                           <span class="cm"># 連結</span>
 import heapq
 m = list(heapq.merge(a, b))         <span class="cm"># ソート済 2 列を O(N) マージ</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">編集</span>
@@ -133,7 +136,7 @@ m = list(heapq.merge(a, b))         <span class="cm"># ソート済 2 列を O(N
   <p class="lead">順序を保つ重複除去と、ソートして潰す方法。</p>
   <pre class="dia">[1,1,2,3,3] → [1,2,3]</pre><pre class="code">u = list(dict.fromkeys(a))          <span class="cm"># 順序保持</span>
 us = sorted(set(a))                 <span class="cm"># ソート + 重複排除</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">探索</span>
@@ -143,7 +146,7 @@ us = sorted(set(a))                 <span class="cm"># ソート + 重複排除<
   <p class="lead">存在判定と添字。配列の contains は O(N)（多用なら Set 化で O(1)）。</p>
   <pre class="dia">[5,3,9] 3を含む? → true   9の位置 → 2</pre><pre class="code">has = 3 in a                        <span class="cm"># O(N) (集合化で O(1))</span>
 idx = a.index(9) if 9 in a else -1  <span class="cm"># index は無いと例外</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">集計</span>
@@ -153,7 +156,7 @@ idx = a.index(9) if 9 in a else -1  <span class="cm"># index は無いと例外<
   <p class="lead">合計はオーバーフローに注意（Long で受ける）。空配列の max/min は例外。</p>
   <pre class="dia">[3,1,2] → sum=6  max=3  min=1</pre><pre class="code">s = sum(a)
 mx = max(a); mn = min(a)            <span class="cm"># 空はエラー → max(a, default=0)</span></pre>
-</section>
+  <p class="omit"><b>略</b>C++: accumulate の 0LL は省略不可（0 だと int 集計で溢れる）。Kotlin: 溢れないなら a.sum() で可。</p></section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">集計</span>
@@ -163,7 +166,7 @@ mx = max(a); mn = min(a)            <span class="cm"># 空はエラー → max(a
   <p class="lead">条件を満たす個数を数える / 満たす要素だけ取り出す。</p>
   <pre class="dia">[1,2,3,4] → even を抽出 → [2,4]  cnt=2</pre><pre class="code">cnt = sum(1 for x in a if x % 2 == 0)
 evens = [x for x in a if x % 2 == 0]</pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">変換</span>
@@ -172,7 +175,7 @@ evens = [x for x in a if x % 2 == 0]</pre>
   </div>
   <p class="lead">各要素に同じ加工をして新しい列を作る。</p>
   <pre class="dia">[1,2,3] → ×2 → [2,4,6]</pre><pre class="code">b = [x * 2 for x in a]</pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">整列</span>
@@ -184,7 +187,7 @@ evens = [x for x in a if x % 2 == 0]</pre>
 asc = sorted(a)                     <span class="cm"># 非破壊</span>
 desc = sorted(a, reverse=True)
 pairs.sort(key=lambda p: p[1])      <span class="cm"># キー指定</span></pre>
-</section>
+  <p class="omit"><b>略</b>比較関数を省略すると昇順（自然順序）。C++ の pair/tuple も比較省略で辞書順に並ぶ。</p></section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">整列</span>
@@ -195,7 +198,7 @@ pairs.sort(key=lambda p: p[1])      <span class="cm"># キー指定</span></pre>
   <pre class="dia">[1,2,3,4] → 反転 [4,3,2,1] / [1,3) = [2,3]</pre><pre class="code">r = a[::-1]                         <span class="cm"># 反転</span>
 sub = a[1:3]                        <span class="cm"># [1,3)</span>
 rot = a[k:] + a[:k]                 <span class="cm"># 左 k 回転</span></pre>
-</section>
+  <p class="omit"><b>略</b>Python: スライスは開始/終了を省略可（a[:k] / a[k:] / a[::-1]）。</p></section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">探索</span>
@@ -204,7 +207,7 @@ rot = a[k:] + a[:k]                 <span class="cm"># 左 k 回転</span></pre>
   </div>
   <p class="lead">「最大値そのもの」でなく「最大の添字」が欲しいとき。</p>
   <pre class="dia">[3,9,1] → maxIdx = 1 (値 9)</pre><pre class="code">idx = max(range(len(a)), key=lambda i: a[i])</pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">集計</span>
@@ -216,7 +219,7 @@ rot = a[k:] + a[:k]                 <span class="cm"># 左 k 回転</span></pre>
 sum[l,r) = pre[r] - pre[l]</pre><pre class="code">from itertools import accumulate
 pre = [0] + list(accumulate(a))
 s = pre[r] - pre[l]                 <span class="cm"># [l, r)</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">変換</span>
@@ -228,7 +231,7 @@ s = pre[r] - pre[l]                 <span class="cm"># [l, r)</span></pre>
  [4,5,6]]  →  [[1,4],
               [2,5],
               [3,6]]</pre><pre class="code">t = [list(row) for row in zip(*g)]      <span class="cm"># 転置の定番</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">コレクション</span>
@@ -242,7 +245,7 @@ pq = []
 heapq.heappush(pq, 3)               <span class="cm"># 最小ヒープのみ</span>
 x = heapq.heappop(pq)
 <span class="cm"># 最大は符号反転: heappush(pq, -v); -heappop(pq)</span></pre>
-</section>
+  <p class="omit"><b>略</b>C++: 最大ヒープは priority_queue&lt;int&gt;（後ろ2引数省略）。最小の greater&lt;&gt; は &lt;&gt; 形でよい（=greater&lt;int&gt;, C++17+）。Kotlin/Java: 比較を省略すると最小ヒープ。</p></section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">コレクション</span>
@@ -255,7 +258,7 @@ front [ . . . ] back</pre><pre class="code">from collections import deque
 dq = deque()
 dq.append(1); dq.appendleft(0)
 f = dq.popleft(); l = dq.pop()</pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">コレクション</span>
@@ -265,7 +268,7 @@ f = dq.popleft(); l = dq.pop()</pre>
   <p class="lead">重複を消す / 含まれるかを高速判定。順序つきが要るなら Tree/std::set。</p>
   <pre class="dia">[1,1,2,3] → {1,2,3}  (3 in set? → true)</pre><pre class="code">s = set(a)
 if 3 in s: ...</pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">コレクション</span>
@@ -276,7 +279,7 @@ if 3 in s: ...</pre>
   <pre class="dia">[a,b,a] → {a:2, b:1}</pre><pre class="code">from collections import Counter
 cnt = Counter(a)                    <span class="cm"># {値: 個数}</span>
 c = cnt[x]                          <span class="cm"># 無ければ 0</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">探索</span>
@@ -288,7 +291,7 @@ c = cnt[x]                          <span class="cm"># 無ければ 0</span></pr
 lower=2 (5以上の先頭) / upper=3 (5より大の先頭)</pre><pre class="code">import bisect
 lo = bisect.bisect_left(a, x)       <span class="cm"># x 以上の先頭 (lower_bound)</span>
 hi = bisect.bisect_right(a, x)      <span class="cm"># x より大の先頭 (upper_bound)</span></pre>
-</section>
+  </section>
 <section class="block cat-arr">
   <div class="bh">
     <span class="cat">文字列</span>
@@ -301,7 +304,7 @@ hi = bisect.bisect_right(a, x)      <span class="cm"># x より大の先頭 (upp
 nums = list(map(int, s.split()))
 joined = " ".join(map(str, lst))
 chars = list(s)</pre>
-</section>
+  <p class="omit"><b>略</b>Python: split() は引数省略で空白区切り（連続空白もまとめる）。split(" ") とは挙動が違う。</p></section>
   </div>
 </div>
 </body>

@@ -32,6 +32,8 @@ pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospa
 .code .cm { color:#999; }
 .pf { margin:4px 0 0; padding-left:13px; }
 .pf li { font-size:8.2px; margin:1px 0; }
+.omit { font-size:8px; color:#666; margin:3px 0 0; }
+.omit b { background:#fef9c3; color:#a16207; padding:0 3px; border-radius:2px; margin-right:3px; }
 @media screen {
   body { background:#999; padding:14px; }
   .sheet { background:#fff; max-width:200mm; margin:0 auto; padding:9mm;
@@ -62,7 +64,8 @@ pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospa
 .cat-string .bh .cat{background:#e0e7ff;color:#4338ca} .cat-string .code{border-left-color:#4f46e5}
 .cat-geometry .bh .cat{background:#fee2e2;color:#b91c1c} .cat-geometry .code{border-left-color:#dc2626}
 .cat-io .bh .cat{background:#ccfbf1;color:#0f766e} .cat-io .code{border-left-color:#14b8a6}
-.cat-arr .bh .cat{background:#fef9c3;color:#a16207} .cat-arr .code{border-left-color:#ca8a04}</style>
+.cat-arr .bh .cat{background:#fef9c3;color:#a16207} .cat-arr .code{border-left-color:#ca8a04}
+.cat-interval .bh .cat{background:#dcfce7;color:#166534} .cat-interval .code{border-left-color:#22c55e}</style>
 </head>
 <body>
 <div class="sheet">
@@ -207,10 +210,10 @@ fun gridBfs(grid: Array&lt;String&gt;, sy: Int, sx: Int): Array&lt;IntArray&gt; 
   <div class="bh">
     <span class="cat">探索</span>
     <span class="title">二分探索</span>
-    <span class="sub">めぐる式 / lower・upper bound</span>
+    <span class="sub">めぐる式 / lower・upper / 標準</span>
     <span class="cx">O(log N)</span>
   </div>
-  <p class="lead">答えの単調性(F..FT..T)で二分。ok=満たす側, ng=満たさない側の初期値を渡す。</p>
+  <p class="lead">答えの単調性(F..FT..T)で二分。ok=満たす側, ng=満たさない側の初期値を渡す。ソート済み配列の値探索は各言語の標準(下記)。</p>
   <pre class="dia">pred 単調:  F F F T T T
             ng ──┬── ok   m=(ok+ng)/2
 lowerBound: a[i] &gt;= x の最小 i
@@ -234,8 +237,12 @@ fun upperBound(a: LongArray, x: Long): Int {   <span class="cm">// a[i] &gt; x �
   var lo = -1; var hi = a.size
   while (hi - lo &gt; 1) { val m = (lo + hi) / 2; if (a[m] &gt; x) hi = m else lo = m }
   return hi
-}</pre>
-  <ul class="pf"><li>ok/ng の向きを取り違えない(満たす側が ok)</li><li>mid の溢れ: (lo+hi)/2 より lo+(hi-lo)/2 が安全</li><li>値が無い場合の lowerBound は size を返す</li></ul>
+}
+<span class="cm">// 有無/挿入位置なら標準 (要ソート済):</span>
+<span class="cm">//   val i = java.util.Arrays.binarySearch(a, x)  // 無ければ -(挿入点)-1</span>
+<span class="cm">//   val ins = if (i &lt; 0) -i - 1 else i           // List は list.binarySearch(x)</span>
+<span class="cm">//   ※ LongArray に stdlib の binarySearch 拡張は無い。重複時の lower/upper も非保証</span></pre>
+  <ul class="pf"><li>ok/ng の向きを取り違えない(満たす側が ok)</li><li>mid の溢れ: (lo+hi)/2 より lo+(hi-lo)/2 が安全</li><li>値が無い場合の lowerBound は size を返す</li><li>標準 binarySearch(Java/Kotlin) は重複時にどの添字かを保証しない → lower/upper は自前</li><li>標準 (bisect / lower_bound / binarySearch) は事前ソート必須</li></ul>
 </section>
 <section class="block cat-util">
   <div class="bh">
@@ -333,7 +340,8 @@ class Comb(maxN: Int, val m: Long = MOD) {
  gcd(12,18)=gcd(18,12)=gcd(12,6)=gcd(6,0)=6
 lcm = a / gcd · b    (先に割る)
 extGcd: ax + by = gcd の x,y も返す</pre>
-  <pre class="code">tailrec fun gcd(a: Long, b: Long): Long = if (b == 0L) a else gcd(b, a % b)
+  <pre class="code"><span class="cm">// Kotlin/Java は primitive の gcd 標準が無いので手書き互除法が定番</span>
+tailrec fun gcd(a: Long, b: Long): Long = if (b == 0L) a else gcd(b, a % b)
 fun lcm(a: Long, b: Long): Long = a / gcd(a, b) * b
 <span class="cm">// ax + by = gcd(a,b) の (g, x, y)</span>
 fun extGcd(a: Long, b: Long): Triple&lt;Long, Long, Long&gt; {
@@ -575,6 +583,7 @@ fun countAtLeast(a: LongArray, k: Long): Long {
 順列: 末尾から増加位置を探し交換→反転
  012 021 102 120 201 210  (n! 通り)</pre>
   <pre class="code"><span class="cm">// bit 全探索: for (mask in 0 until (1 shl n)) { (mask shr i and 1) ... }</span>
+<span class="cm">// 立ちビット数(選んだ個数)は mask.countOneBits() (1.5+) / Integer.bitCount(mask)</span>
 <span class="cm">// 辞書順で次の順列に in-place。なければ false。do{}while で全列挙</span>
 fun nextPermutation(a: IntArray): Boolean {
   var i = a.size - 2
@@ -587,7 +596,7 @@ fun nextPermutation(a: IntArray): Boolean {
   while (lo &lt; hi) { a[lo] = a[hi].also { a[hi] = a[lo] }; lo++; hi-- }
   return true
 }</pre>
-  <ul class="pf"><li>next permutation は最初にソートしてから</li><li>1 shl n は n が大きいと Int 溢れ(Long に)</li></ul>
+  <ul class="pf"><li>next permutation は最初にソートしてから</li><li>1 shl n は n が大きいと Int 溢れ(Long に)</li><li>選んだ個数は自前で数えず popcount 系標準で(各言語コード参照)</li></ul>
 </section>
 <section class="block cat-dp">
   <div class="bh">

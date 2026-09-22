@@ -32,6 +32,8 @@ pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospa
 .code .cm { color:#999; }
 .pf { margin:4px 0 0; padding-left:13px; }
 .pf li { font-size:8.2px; margin:1px 0; }
+.omit { font-size:8px; color:#666; margin:3px 0 0; }
+.omit b { background:#fef9c3; color:#a16207; padding:0 3px; border-radius:2px; margin-right:3px; }
 @media screen {
   body { background:#999; padding:14px; }
   .sheet { background:#fff; max-width:200mm; margin:0 auto; padding:9mm;
@@ -62,7 +64,8 @@ pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospa
 .cat-string .bh .cat{background:#e0e7ff;color:#4338ca} .cat-string .code{border-left-color:#4f46e5}
 .cat-geometry .bh .cat{background:#fee2e2;color:#b91c1c} .cat-geometry .code{border-left-color:#dc2626}
 .cat-io .bh .cat{background:#ccfbf1;color:#0f766e} .cat-io .code{border-left-color:#14b8a6}
-.cat-arr .bh .cat{background:#fef9c3;color:#a16207} .cat-arr .code{border-left-color:#ca8a04}</style>
+.cat-arr .bh .cat{background:#fef9c3;color:#a16207} .cat-arr .code{border-left-color:#ca8a04}
+.cat-interval .bh .cat{background:#dcfce7;color:#166534} .cat-interval .code{border-left-color:#22c55e}</style>
 </head>
 <body>
 <div class="sheet">
@@ -210,10 +213,10 @@ S . . #            0 1 2 #
   <div class="bh">
     <span class="cat">探索</span>
     <span class="title">二分探索</span>
-    <span class="sub">めぐる式 / lower・upper bound</span>
+    <span class="sub">めぐる式 / lower・upper / 標準</span>
     <span class="cx">O(log N)</span>
   </div>
-  <p class="lead">答えの単調性(F..FT..T)で二分。ok=満たす側, ng=満たさない側の初期値を渡す。</p>
+  <p class="lead">答えの単調性(F..FT..T)で二分。ok=満たす側, ng=満たさない側の初期値を渡す。ソート済み配列の値探索は各言語の標準(下記)。</p>
   <pre class="dia">pred 単調:  F F F T T T
             ng ──┬── ok   m=(ok+ng)/2
 lowerBound: a[i] &gt;= x の最小 i
@@ -236,8 +239,13 @@ static int upperBound(long[] a, long x) {   <span class="cm">// a[i] &gt; x の�
   int lo = -1, hi = a.length;
   while (hi - lo &gt; 1) { int m = (lo + hi) &gt;&gt;&gt; 1; if (a[m] &gt; x) hi = m; else lo = m; }
   return hi;
-}</pre>
-  <ul class="pf"><li>ok/ng の向きを取り違えない(満たす側が ok)</li><li>mid の溢れ: (lo+hi)/2 より lo+(hi-lo)/2 が安全</li><li>値が無い場合の lowerBound は size を返す</li></ul>
+}
+<span class="cm">// 有無/挿入位置なら標準が速い (要ソート済):</span>
+<span class="cm">//   int i = Arrays.binarySearch(a, x);        // 見つかれば添字, 無ければ -(挿入点)-1</span>
+<span class="cm">//   int ins = i &lt; 0 ? -i - 1 : i;             // 挿入位置(=distinct なら lowerBound)</span>
+<span class="cm">//   List は Collections.binarySearch(list, x)</span>
+<span class="cm">//   ※ 重複時にどの添字かは非保証 → 個数を数えるなら上の lower/upperBound</span></pre>
+  <ul class="pf"><li>ok/ng の向きを取り違えない(満たす側が ok)</li><li>mid の溢れ: (lo+hi)/2 より lo+(hi-lo)/2 が安全</li><li>値が無い場合の lowerBound は size を返す</li><li>標準 binarySearch(Java/Kotlin) は重複時にどの添字かを保証しない → lower/upper は自前</li><li>標準 (bisect / lower_bound / binarySearch) は事前ソート必須</li></ul>
 </section>
 <section class="block cat-util">
   <div class="bh">
@@ -337,7 +345,8 @@ class Comb {
  gcd(12,18)=gcd(18,12)=gcd(12,6)=gcd(6,0)=6
 lcm = a / gcd · b    (先に割る)
 extGcd: ax + by = gcd の x,y も返す</pre>
-  <pre class="code">static long gcd(long a, long b) { return b == 0 ? a : gcd(b, a % b); }
+  <pre class="code"><span class="cm">// Java は long の gcd 標準が無い(BigInteger.gcd は遅い)。手書き互除法が定番</span>
+static long gcd(long a, long b) { return b == 0 ? a : gcd(b, a % b); }
 static long lcm(long a, long b) { return a / gcd(a, b) * b; }
 <span class="cm">// ax + by = gcd; 返り値 {g, x, y}</span>
 static long[] extGcd(long a, long b) {
@@ -589,6 +598,7 @@ static long countAtLeast(long[] a, long k) {
 順列: 末尾から増加位置を探し交換→反転
  012 021 102 120 201 210  (n! 通り)</pre>
   <pre class="code"><span class="cm">// bit 全探索: for (int mask = 0; mask &lt; (1&lt;&lt;n); mask++) { (mask&gt;&gt;i &amp; 1) ... }</span>
+<span class="cm">// 立ちビット数は Integer.bitCount(mask) / Long.bitCount(mask)</span>
 <span class="cm">// 辞書順で次の順列に in-place。なければ false</span>
 static boolean nextPermutation(int[] a) {
   int i = a.length - 2;
@@ -602,7 +612,7 @@ static boolean nextPermutation(int[] a) {
   }
   return true;
 }</pre>
-  <ul class="pf"><li>next permutation は最初にソートしてから</li><li>1 shl n は n が大きいと Int 溢れ(Long に)</li></ul>
+  <ul class="pf"><li>next permutation は最初にソートしてから</li><li>1 shl n は n が大きいと Int 溢れ(Long に)</li><li>選んだ個数は自前で数えず popcount 系標準で(各言語コード参照)</li></ul>
 </section>
 <section class="block cat-dp">
   <div class="bh">

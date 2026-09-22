@@ -32,6 +32,8 @@ pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospa
 .code .cm { color:#999; }
 .pf { margin:4px 0 0; padding-left:13px; }
 .pf li { font-size:8.2px; margin:1px 0; }
+.omit { font-size:8px; color:#666; margin:3px 0 0; }
+.omit b { background:#fef9c3; color:#a16207; padding:0 3px; border-radius:2px; margin-right:3px; }
 @media screen {
   body { background:#999; padding:14px; }
   .sheet { background:#fff; max-width:200mm; margin:0 auto; padding:9mm;
@@ -62,7 +64,8 @@ pre { margin:0; font-family:ui-monospace,Menlo,Consolas,"Noto Sans Mono",monospa
 .cat-string .bh .cat{background:#e0e7ff;color:#4338ca} .cat-string .code{border-left-color:#4f46e5}
 .cat-geometry .bh .cat{background:#fee2e2;color:#b91c1c} .cat-geometry .code{border-left-color:#dc2626}
 .cat-io .bh .cat{background:#ccfbf1;color:#0f766e} .cat-io .code{border-left-color:#14b8a6}
-.cat-arr .bh .cat{background:#fef9c3;color:#a16207} .cat-arr .code{border-left-color:#ca8a04}</style>
+.cat-arr .bh .cat{background:#fef9c3;color:#a16207} .cat-arr .code{border-left-color:#ca8a04}
+.cat-interval .bh .cat{background:#dcfce7;color:#166534} .cat-interval .code{border-left-color:#22c55e}</style>
 </head>
 <body>
 <div class="sheet">
@@ -89,7 +92,7 @@ def main():
     pass
 
 main()</pre>
-</section>
+  <p class="omit"><b>略</b>Python: input=sys.stdin.readline は速度用（省略可・遅くなる）。C++: ios::sync_with_stdio(false)/cin.tie(nullptr) は省略可（遅くなる）。Kotlin/Java: 出力の flush / print(sb) は省略不可。</p></section>
 <section class="block cat-io">
   <div class="bh">
     <span class="cat">入力</span>
@@ -101,7 +104,7 @@ main()</pre>
 5
 3 7 2</pre><pre class="code">n = int(input())                        <span class="cm"># 1 個</span>
 a, b, c = map(int, input().split())     <span class="cm"># 1 行に複数</span></pre>
-</section>
+  </section>
 <section class="block cat-io">
   <div class="bh">
     <span class="cat">入力</span>
@@ -113,7 +116,7 @@ a, b, c = map(int, input().split())     <span class="cm"># 1 行に複数</span>
 3             n = 3
 1 2 3         a = [1, 2, 3]</pre><pre class="code">n = int(input())
 a = list(map(int, input().split()))     <span class="cm"># 1 行に n 個</span></pre>
-</section>
+  </section>
 <section class="block cat-io">
   <div class="bh">
     <span class="cat">入力</span>
@@ -127,7 +130,7 @@ a = list(map(int, input().split()))     <span class="cm"># 1 行に n 個</span>
 2 3
 1 3</pre><pre class="code">n = int(input())
 e = [tuple(map(int, input().split())) for _ in range(n)]</pre>
-</section>
+  </section>
 <section class="block cat-io">
   <div class="bh">
     <span class="cat">入力</span>
@@ -140,7 +143,7 @@ e = [tuple(map(int, input().split())) for _ in range(n)]</pre>
 .#.
 ..#</pre><pre class="code">h, w = map(int, input().split())
 grid = [input().rstrip() for _ in range(h)]   <span class="cm"># rstrip で改行除去</span></pre>
-</section>
+  </section>
 <section class="block cat-io">
   <div class="bh">
     <span class="cat">入力</span>
@@ -150,7 +153,7 @@ grid = [input().rstrip() for _ in range(h)]   <span class="cm"># rstrip で改�
   <p class="lead">空白で区切られた 1 語と、空白を含む 1 行全体の読み分け。</p>
   <pre class="code">s = input().rstrip()                    <span class="cm"># 1 行 (= 1 語想定なら split)</span>
 parts = input().split()                 <span class="cm"># 空白区切りで分解</span></pre>
-</section>
+  </section>
 <section class="block cat-io">
   <div class="bh">
     <span class="cat">入力</span>
@@ -166,7 +169,7 @@ while True:
     n = int(input())
     if n == 0:
         break</pre>
-</section>
+  </section>
 <section class="block cat-io">
   <div class="bh">
     <span class="cat">入力</span>
@@ -177,7 +180,7 @@ while True:
   <pre class="code">print(*a)                                   <span class="cm"># 配列をスペース区切り</span>
 print(f"{ans:.10f}")                        <span class="cm"># 小数 10 桁</span>
 sys.stdout.write("\n".join(map(str, res)) + "\n")  <span class="cm"># 大量出力はまとめて</span></pre>
-</section>
+  </section>
   </div>
 </div>
 </body>

@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url'
 import { snippets, LANGS } from './snippets.mjs'
 import { ioPatterns } from './io.mjs'
 import { arrayPatterns } from './array.mjs'
+import { intervalPatterns } from './interval.mjs'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const distDir = join(here, 'dist')
@@ -20,7 +21,7 @@ const DEFAULT_THEME = 'category' // dist/ に採用するテーマ
 const CAT_LABEL = {
   ds: 'データ構造', graph: 'グラフ', math: '数学', search: '探索',
   util: 'ユーティリティ', dp: '動的計画法', string: '文字列', geometry: '幾何',
-  io: '入力', arr: '配列',
+  io: '入力', arr: '配列', interval: '区間',
 }
 
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -67,6 +68,8 @@ pre { margin:0; font-family:${MONO_FONT}; }
 .code .cm { color:#999; }
 .pf { margin:4px 0 0; padding-left:13px; }
 .pf li { font-size:8.2px; margin:1px 0; }
+.omit { font-size:8px; color:#666; margin:3px 0 0; }
+.omit b { background:#fef9c3; color:#a16207; padding:0 3px; border-radius:2px; margin-right:3px; }
 @media screen {
   body { background:#999; padding:14px; }
   .sheet { background:#fff; max-width:200mm; margin:0 auto; padding:9mm;
@@ -92,6 +95,7 @@ const CAT_COLOR = {
   geometry: ['#fee2e2', '#b91c1c', '#dc2626'],
   io: ['#ccfbf1', '#0f766e', '#14b8a6'],
   arr: ['#fef9c3', '#a16207', '#ca8a04'],
+  interval: ['#dcfce7', '#166534', '#22c55e'],
 }
 const catColorCss = Object.entries(CAT_COLOR)
   .map(([k, [bg, fg, line]]) =>
@@ -160,8 +164,10 @@ const renderIoBlock = (p, langId) => {
   </div>
   <p class="lead">${esc(p.note)}</p>
   ${sample}<pre class="code">${code}</pre>
-</section>`
+  ${omitLine(p)}</section>`
 }
+
+const omitLine = (p) => (p.omit ? `<p class="omit"><b>略</b>${esc(p.omit)}</p>` : '')
 
 const renderArrBlock = (p, langId) => {
   const code = hlComments(esc(p.code[langId]), langId)
@@ -174,6 +180,21 @@ const renderArrBlock = (p, langId) => {
   </div>
   <p class="lead">${esc(p.note)}</p>
   ${state}<pre class="code">${code}</pre>
+  ${omitLine(p)}</section>`
+}
+
+const renderIntervalBlock = (p, langId) => {
+  const code = hlComments(esc(p.code[langId]), langId)
+  const state = p.state ? `<pre class="dia">${esc(p.state)}</pre>` : ''
+  return `<section class="block cat-interval">
+  <div class="bh">
+    <span class="cat">${esc(p.group ?? '区間')}</span>
+    <span class="title">${esc(p.title)}</span>
+    <span class="sub">${esc(p.sub)}</span>
+  </div>
+  <p class="lead">${esc(p.note)}</p>
+  ${state}<pre class="code">${code}</pre>
+  <ul class="pf">${p.pitfalls.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
 </section>`
 }
 
@@ -228,16 +249,28 @@ const arrPage = (lang, themeId) =>
     '配列・標準ライブラリ',
     lang,
     `${arrayPatterns.length} topics · 印刷対応 (A4)`,
-    '各項目は 中身の変化（図）→ コード の順。配列操作と予選で使う標準ライブラリ。',
+    '各項目は 中身の変化（図）→ コード →<b>略</b>（省略可能な書き方）の順。Kotlin の <code>it</code> はラムダ引数の省略名、C++ は <code>using namespace std</code> 前提。',
     arrayPatterns.map((p) => renderArrBlock(p, lang.id)).join('\n'),
     themeId
   )
 
-// dist: 全言語 × デフォルトテーマ (アルゴリズム早見 + 入力テンプレ + 配列の 3 ページ)
+const intervalPage = (lang, themeId) =>
+  shell(
+    `区間処理 — ${lang.label}`,
+    '区間処理',
+    lang,
+    `${intervalPatterns.length} topics · 印刷対応 (A4)`,
+    '半開区間 [l,r) に統一し、累積和・いもす・差分・二分探索の境界ミスを減らすための早見表。',
+    intervalPatterns.map((p) => renderIntervalBlock(p, lang.id)).join('\n'),
+    themeId
+  )
+
+// dist: 全言語 × デフォルトテーマ (アルゴリズム早見 + 入力テンプレ + 配列 + 区間の 4 ページ)
 for (const lang of LANGS) {
   writeFileSync(join(distDir, `${lang.id}.html`), page(lang, DEFAULT_THEME))
   writeFileSync(join(distDir, `io-${lang.id}.html`), ioPage(lang, DEFAULT_THEME))
   writeFileSync(join(distDir, `arr-${lang.id}.html`), arrPage(lang, DEFAULT_THEME))
+  writeFileSync(join(distDir, `interval-${lang.id}.html`), intervalPage(lang, DEFAULT_THEME))
 }
 
 // samples: Python × 全テーマ (比較用)
@@ -250,6 +283,7 @@ for (const themeId of Object.keys(THEMES)) {
 const algoLinks = LANGS.map((l) => `<li><a href="${l.id}.html">${l.label}</a> — ${l.id}.html</li>`).join('\n')
 const ioLinks = LANGS.map((l) => `<li><a href="io-${l.id}.html">${l.label}</a> — io-${l.id}.html</li>`).join('\n')
 const arrLinks = LANGS.map((l) => `<li><a href="arr-${l.id}.html">${l.label}</a> — arr-${l.id}.html</li>`).join('\n')
+const intervalLinks = LANGS.map((l) => `<li><a href="interval-${l.id}.html">${l.label}</a> — interval-${l.id}.html</li>`).join('\n')
 const index = `<!DOCTYPE html>
 <html lang="ja"><head><meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -291,9 +325,15 @@ ${ioLinks}
 ${arrLinks}
 </ul>
 </div>
+<div>
+<h2>区間処理 (${intervalPatterns.length} topics)</h2>
+<ul>
+${intervalLinks}
+</ul>
+</div>
 </div>
 <p class="foot"><a href="https://github.com/elzup/kyoupro-lib">GitHub: elzup/kyoupro-lib</a></p>
 </body></html>`
 writeFileSync(join(distDir, 'index.html'), index)
 
-console.log(`built ${LANGS.length} lang pages + ${LANGS.length} io pages (theme:${DEFAULT_THEME}) + ${Object.keys(THEMES).length} python theme samples`)
+console.log(`built ${LANGS.length} lang pages + ${LANGS.length} io pages + ${LANGS.length} interval pages (theme:${DEFAULT_THEME}) + ${Object.keys(THEMES).length} python theme samples`)

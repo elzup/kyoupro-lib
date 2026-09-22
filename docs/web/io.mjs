@@ -8,6 +8,7 @@ export const ioPatterns = [
     title: 'テンプレ (高速 I/O)',
     sub: 'main 雛形',
     note: '高速入出力つきの雛形。本体で読み、出力はまとめて最後に。これをコピーして使う。',
+    omit: 'Python: input=sys.stdin.readline は速度用（省略可・遅くなる）。C++: ios::sync_with_stdio(false)/cin.tie(nullptr) は省略可（遅くなる）。Kotlin/Java: 出力の flush / print(sb) は省略不可。',
     code: {
       kotlin: `import java.io.PrintWriter
 import java.util.StringTokenizer
